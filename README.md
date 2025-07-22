@@ -26,8 +26,8 @@ This is a starter kit project built with **Laravel 12** and **React (with Inerti
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/khinsoenyein/pos-laravel.git
-cd pos-laravel
+git clone https://github.com/khinsoenyein/pos-cafe.git
+cd pos-cafe
 ```
 
 ### 2. Install PHP dependencies
