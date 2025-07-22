@@ -24,14 +24,14 @@ export const columns: ColumnDef<Inventory>[] = [
         filterFn: 'includesString',
     },
     {
-        accessorKey: "product.name",
+        accessorKey: "ingredient.name",
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Product
+                    Ingredient
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )

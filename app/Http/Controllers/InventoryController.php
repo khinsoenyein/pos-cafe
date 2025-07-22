@@ -2,27 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ingredient;
+use App\Models\IngredientShop;
 use App\Models\Inventory;
-use App\Models\Product;
-use App\Models\ProductShop;
 use App\Models\Shop;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
 class InventoryController extends Controller
 {
     public function index()
     {
-        $inventories = Inventory::with('shop', 'product', 'createdBy')->orderBy('created_at', 'desc')->get();
+        $inventories = Inventory::with('shop', 'ingredient', 'createdBy')->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Inventories/Index', [
             'inventories' => $inventories,
-            'products' => Product::select('id', 'name')->get(),
+            'ingredients' => Ingredient::select('id', 'name')->get(),
             'shops' => Shop::select('id', 'name')->get(),
-            'productShops' => ProductShop::with('product')
-                ->select('id', 'shop_id', 'product_id', 'price', 'stock', 'isactive', 'isdeleted')
+            'ingredientShops' => IngredientShop::with('ingredient')
+                ->select('id', 'shop_id', 'ingredient_id', 'stock', 'isactive', 'isdeleted')
                 ->get(),
         ]);
     }
@@ -31,7 +30,7 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'shop_id' => 'required|exists:shops,id',
-            'product_id' => 'required|exists:products,id',
+            'ingredient_id' => 'required|exists:ingredients,id',
             'change' => 'required|numeric',
             'reason' => 'nullable|string',
             'remark' => 'nullable|string',
@@ -41,7 +40,7 @@ class InventoryController extends Controller
 
         Inventory::create([
             'shop_id' => $validated['shop_id'],
-            'product_id' => $validated['product_id'],
+            'ingredient_id' => $validated['ingredient_id'],
             'change' => $validated['change'],
             'reason' => $validated['reason'],
             'remark' => $validated['remark'] ?? '',
@@ -53,10 +52,10 @@ class InventoryController extends Controller
 
     public function balance()
     {
-        $productShops = ProductShop::with('shop', 'product', 'createdBy')->orderBy('shop_id')->get();
+        $ingredientShops = IngredientShop::with('shop', 'ingredient', 'createdBy')->orderBy('shop_id')->get();
 
         return Inertia::render('Inventories/Balance', [
-            'productShops' => $productShops,
+            'ingredientShops' => $ingredientShops,
         ]);
     }
 }

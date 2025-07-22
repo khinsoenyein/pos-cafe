@@ -20,7 +20,20 @@ class Product extends Model
     public function shops()
     {
         return $this->belongsToMany(Shop::class)
-                    ->withPivot('price', 'isactive', 'isdeleted')
-                    ->withTimestamps();
+            ->withPivot('price', 'isactive', 'isdeleted')
+            ->withTimestamps();
+    }
+
+    public function ingredients()
+    {
+        return $this->belongsToMany(Product::class, 'ingredient_product', 'product_id', 'ingredient_id')
+            ->withPivot('quantity', 'shop_id')
+            ->withTimestamps();
+    }
+    public function usedInProducts()
+    {
+        return $this->belongsToMany(Product::class, 'ingredient_product', 'ingredient_id', 'product_id')
+            ->withPivot('quantity', 'shop_id')
+            ->withTimestamps();
     }
 }

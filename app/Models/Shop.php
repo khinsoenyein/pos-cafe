@@ -15,6 +15,13 @@ class Shop extends Model
                     ->withTimestamps();
     }
 
+    public function ingredients()
+    {
+        return $this->belongsToMany(Ingredient::class)
+                    ->withPivot( 'stock')
+                    ->withTimestamps();
+    }
+
     public function sales()
     {
         return $this->hasMany(Sale::class);

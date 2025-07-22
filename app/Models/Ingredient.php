@@ -23,4 +23,10 @@ class Ingredient extends Model
                     ->withPivot('stock', 'isactive', 'isdeleted')
                     ->withTimestamps();
     }
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'ingredient_product', 'ingredient_id', 'product_id')
+            ->withPivot('quantity', 'shop_id')
+            ->withTimestamps();
+    }
 }

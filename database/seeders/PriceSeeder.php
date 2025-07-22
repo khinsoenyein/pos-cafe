@@ -18,12 +18,15 @@ class PriceSeeder extends Seeder
         $products = Product::all();
 
         foreach ($shops as $shop) {
-            // For this example, attach all products to each shop with unique prices/stock
             foreach ($products as $product) {
-                $shop->products()->attach($product->id, [
-                    'price' => rand(200, 1000),               // random price from \$2 - \$10
-                    'stock' => rand(10, 50),              // random stock per shop
-                ]);
+                $pid = rand(1,4);
+                if ($product->id > $pid) {
+                    $shop->products()->attach($product->id, [
+                        'price' => round(rand(2000, 20000), -3),
+                        'created_user' => 1
+                        // 'stock' => rand(10, 50),
+                    ]);
+                }
             }
         }
     }

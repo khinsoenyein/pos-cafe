@@ -108,7 +108,7 @@ export function AppSidebar() {
                 <NavMain items={posNavItems} title='POS' />
                 <NavMain items={masterNavItems} title='Master' />
                 <NavMain items={recipeNavItems} title='Recipe' />
-                {/* <NavMain items={inventoryNavItems} title='Inventory' /> */}
+                <NavMain items={inventoryNavItems} title='Inventory' />
                 {/* <NavMain items={reportNavItems} title='Report' /> */}
             </SidebarContent>
 

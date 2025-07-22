@@ -18,8 +18,8 @@ class PriceController extends Controller
         $currentShopWithProducts = null;
 
         $currentShopWithProducts = Shop::with(['products' => function ($query) {
-            $query->select('products.id', 'products.name', 'products.sku') 
-                ->withPivot('id', 'price', 'isactive'); 
+            $query->select('products.id', 'products.name', 'products.sku')
+                ->withPivot('id', 'price', 'isactive');
         }])->find($selectedShopId);
 
         $availableProducts = Product::whereDoesntHave('shops', function ($query) use ($selectedShopId) {
@@ -27,8 +27,8 @@ class PriceController extends Controller
         })->get();
 
         return Inertia::render('Price', [
-            'shops' => Shop::all(['id', 'name']), 
-            'availableProducts' => $availableProducts, 
+            'shops' => Shop::all(['id', 'name']),
+            'availableProducts' => $availableProducts,
             'currentShopWithProducts' => $currentShopWithProducts,
             'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
         ]);
@@ -115,11 +115,16 @@ class PriceController extends Controller
 
         try {
             if ($shop->products()->where('product_id', $validated['product_id'])->exists()) {
-                $productShop = $shop->products()->where('product_id', $validated['product_id'])->first();
+                $productShop = $shop->products()
+                    ->withPivot('isactive')
+                    ->where('product_id', $validated['product_id'])
+                    ->first();
+
+                $isActive = $productShop->pivot->isactive;
 
                 $shop->products()->updateExistingPivot($validated['product_id'], [
-                    'isactive' => ($productShop->isactive == 1 ? 0 : 1),
-                    'modified_user' => Auth::user()->id
+                    'isactive' => ($isActive == 1 ? 0 : 1),
+                    'modified_user' => Auth::id(),
                 ]);
             }
 

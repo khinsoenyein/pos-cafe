@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, router } from '@inertiajs/react';
-import { Inventory, Product, ProductShop, Shop, type BreadcrumbItem } from '@/types';
+import { Ingredient, IngredientShop, Inventory, Shop, type BreadcrumbItem } from '@/types';
 import {
   Dialog,
   DialogTrigger,
@@ -19,9 +19,9 @@ import { columns } from '@/components/Inventories/columns';
 
 type PageProps = {
   shops: Shop[];
-  products: Product[];
+  ingredients: Ingredient[];
   inventories: Inventory[];
-  productShops: ProductShop[];
+  ingredientShops: IngredientShop[];
   errors: Record<string, string>;
 };
 
@@ -31,18 +31,18 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Inventories() {
-  const { shops, products, inventories, productShops, errors } = usePage<PageProps>().props;
+  const { shops, ingredients, inventories, ingredientShops, errors } = usePage<PageProps>().props;
 
   const [form, setForm] = useState({
     shop_id: '',
-    product_id: '',
+    ingredient_id: '',
     change: '',
     reason: '',
     remark: '',
   });
 
   const [shopId, setShopId] = useState<number | null>(null);
-  const [productId, setProductId] = useState<number | null>(null);
+  const [ingredientId, setIngredientId] = useState<number | null>(null);
 
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,9 +56,9 @@ export default function Inventories() {
   const handleShopChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newShopId = Number(e.target.value);
     setShopId(newShopId);
-    setProductId(null);
+    setIngredientId(null);
 
-    console.log({ shopId, productShops });
+    console.log({ shopId, ingredientShops });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -67,7 +67,7 @@ export default function Inventories() {
 
     router.post('/inventory-adjustment', {
       shop_id: shopId,
-      product_id: productId,
+      ingredient_id: ingredientId,
       change: form.change,
       reason: form.reason,
       remark: form.remark
@@ -75,31 +75,31 @@ export default function Inventories() {
       forceFormData: true,
       preserveScroll: true,
       onSuccess: () => {
-        setForm({ shop_id: '', product_id: '', change: '', reason: '', remark: '' });
+        setForm({ shop_id: '', ingredient_id: '', change: '', reason: '', remark: '' });
         setOpen(false);
         setShopId(null);
-        setProductId(null);
+        setIngredientId(null);
         toast.success('Inventory added successfully');
       },
       onFinish: () => setIsSubmitting(false),
     });
   };
 
-  const availableProducts = shopId
-    ? products.filter((p) => {
-      return productShops.some((ps) =>
-        ps?.shop_id === shopId &&
-        ps?.product?.id === p.id &&
-        !ps?.isdeleted
-      );
-    })
-    : [];
+//   const availableIngredients = shopId
+//     ? ingredients.filter((p) => {
+//       return ingredientShops.some((ps) =>
+//         ps?.shop_id === shopId &&
+//         ps?.ingredient?.id === p.id &&
+//         !ps?.isdeleted
+//       );
+//     })
+//     : [];
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Products" />
+      <Head title="Ingredients" />
       <div className="flex flex-col gap-4 p-4 overflow-x-auto">
-        {/* <h1 className="text-2xl font-bold">Product List</h1> */}
+        {/* <h1 className="text-2xl font-bold">Ingredient List</h1> */}
         <div>
           <h1 className="text-xl font-bold">Inventory</h1>
           <span className="text-sm text-gray-500">Manage inventory</span>
@@ -132,15 +132,15 @@ export default function Inventories() {
                 <div>
                   <select
                     className="border rounded p-2 w-full dark:bg-transparent"
-                    value={productId ?? ''}
-                    onChange={(e) => setProductId(Number(e.target.value))}
+                    value={ingredientId ?? ''}
+                    onChange={(e) => setIngredientId(Number(e.target.value))}
                   >
-                    <option value="">Select Product</option>
-                    {availableProducts.map((product) => (
-                      <option key={product.id} value={product.id}>{product.name}</option>
+                    <option value="">Select Ingredient</option>
+                    {ingredients.map((ingredient) => (
+                      <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>
                     ))}
                   </select>
-                  {errors.product_id && <p className="text-sm text-red-600 mt-1">{errors.product_id}</p>}
+                  {errors.ingredient_id && <p className="text-sm text-red-600 mt-1">{errors.ingredient_id}</p>}
                 </div>
                 <div>
                   <input
@@ -183,7 +183,7 @@ export default function Inventories() {
           </Dialog>
         </div>
 
-        {/* Product Table */}
+        {/* Ingredient Table */}
         <DataTable  columns={columns} data={inventories}/>
       </div>
     </AppLayout>

@@ -5,6 +5,7 @@ use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserController;
@@ -39,9 +40,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/ingredients', [IngredientController::class, 'store'])->name('ingredients.store');
     Route::put('/ingredients/{id}', [IngredientController::class, 'update'])->name('ingredients.update');
 
-    Route::get('/recipe', [IngredientController::class, 'index'])->name('recipe.index');
-    Route::post('/recipe', [IngredientController::class, 'store'])->name('recipe.store');
-    Route::put('/recipe/{id}', [IngredientController::class, 'update'])->name('recipe.update');
+    Route::get('/recipe', [RecipeController::class, 'index'])->name('recipe.index');
+    Route::post('/recipe', [RecipeController::class, 'store'])->name('recipe.store');
+    Route::put('/recipe/{id}', [RecipeController::class, 'update'])->name('recipe.update');
 
     Route::get('/inventory-adjustment', [InventoryController::class, 'index'])->name('inventory.index');
     Route::post('/inventory-adjustment', [InventoryController::class, 'store'])->name('inventory.store');
@@ -50,7 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
     Route::post('/sales/store', [SaleController::class, 'store'])->name('sales.store');
 
-    
+
     Route::get('/user/shop', [UserController::class, 'shop'])->name('user.shop');
 
     // Route::get('testing', function () {
