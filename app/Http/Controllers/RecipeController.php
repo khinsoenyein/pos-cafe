@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ingredient;
+use App\Models\IngredientProduct;
+use App\Models\IngredientShop;
 use App\Models\Product;
 use App\Models\Shop;
 use Illuminate\Http\Request;
@@ -17,10 +19,17 @@ class RecipeController extends Controller
         $selectedProductId = $request->input('product_id') ?? 1;
         $currentIngredients = null;
 
-        $currentIngredients = Product::with(['ingredients' => function ($query) use ($selectedShopId) {
-            $query->wherePivot('shop_id', $selectedShopId)
-                ->withPivot('id', 'quantity', 'isactive');
-        }])->find($selectedProductId);
+        // $currentIngredients = Product::with(['ingredients' => function ($query) use ($selectedShopId) {
+        //     $query->wherePivot('shop_id', $selectedShopId)
+        //         ->withPivot('id', 'quantity', 'shop_id', 'isactive');
+        // }])->find($selectedProductId);
+
+        $currentIngredients = [
+            'shop' => Shop::find($selectedShopId),
+            'product' => Product::find($selectedProductId),
+            'ingredients' => IngredientProduct::where('shop_id','=', $selectedShopId)
+            ->where('product_id','=', $selectedProductId)->get()
+        ];
 
         $availableIngredients = Ingredient::get();
 

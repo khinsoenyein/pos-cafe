@@ -13,33 +13,37 @@ import { Button } from '@/components/ui/button';
 import { formatNumber } from '@/lib/utils';
 import { toast } from 'sonner';
 
-import type { Shop, Ingredient, IngredientShop, ShopWithIngredients, IngredientWithPivot } from '@/types';
+import type { Shop, Ingredient, IngredientProduct, IngredientWithPivot, Product } from '@/types';
 import { Select, SelectContent, SelectGroup, SelectLabel, SelectValue, SelectItem, SelectTrigger } from '@/components/ui/select';
 
 export type IngredientShopSetupPageProps = {
-    shops: Shop[];                          // List of all shops
+    shops: Shop[];
+    products: Product[];
     availableIngredients: Ingredient[];                 // List of all ingredients (for the dropdown)
-    currentShopWithIngredients: ShopWithIngredients | null; // The selected shop with its pivot ingredients
+    currentIngredients: IngredientProduct | null; // The selected shop with its pivot ingredients
     errors: Record<string, string | string[]>; // For Inertia errors
 };
 
 const breadcrumbs = [
     { title: 'Master', href: '' },
-    { title: 'Price by Shop', href: '/ingredient-shop' },
+    { title: 'Receipe by Shop', href: '/ingredient-shop' },
 ];
 
 export default function IngredientShopSetup() {
-    const { shops, availableIngredients, currentShopWithIngredients, errors } = usePage<IngredientShopSetupPageProps>().props;
+    const { shops, products, availableIngredients, currentIngredients, errors } = usePage<IngredientShopSetupPageProps>().props;
+
+    console.log(currentIngredients);
 
     useEffect(() => {
-        router.reload({ only: ['shops', 'availableIngredients', 'currentShopWithIngredients'] });
+        router.reload({ only: ['shops', 'products', 'availableIngredients', 'currentIngredients'] });
     }, []);
 
-    const [shopId, setShopId] = useState<number | ''>(currentShopWithIngredients?.id || shops[0]?.id || '');
+    const [shopId, setShopId] = useState<number | ''>(currentIngredients?.shop.id || shops[0]?.id || '');
+    const [productId, setProductId] = useState<number | ''>(currentIngredients?.product.id || products[0]?.id || '');
     const [ingredientId, setIngredientId] = useState<number | null>(null);
     const [editingIngredientName, setEditingIngredientName] = useState<String | null>(null);
 
-    const [form, setForm] = useState({ stock: '' });
+    const [form, setForm] = useState({ quantity: '' });
 
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,11 +54,25 @@ export default function IngredientShopSetup() {
     const handleShopChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newShopId = Number(e.target.value);
         setShopId(newShopId);
-        setIngredientId(null);
-        setForm({ stock: '' });
+        setForm({ quantity: '' });
         router.get(
-            route('stock.index'),
-            { shop_id: newShopId },
+            route('recipe.index'),
+            { shop_id: shopId, product_id: productId },
+            { preserveScroll: true, preserveState: false }
+        );
+    };
+
+    const handleProductChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newProductId = Number(e.target.value);
+        setProductId(newProductId);
+        if (!shopId) {
+            toast.error('Please select a shop.');
+            return;
+        }
+        setForm({ quantity: '' });
+        router.get(
+            route('recipe.index'),
+            { shop_id: shopId, product_id: productId },
             { preserveScroll: true, preserveState: false }
         );
     };
@@ -69,27 +87,28 @@ export default function IngredientShopSetup() {
             toast.error('Please select a ingredient first.');
             return;
         }
-        if (form.stock === '') {
-            toast.error('Please fill stock.');
+        if (form.quantity === '') {
+            toast.error('Please fill quantity.');
             return;
         }
 
         setIsSubmitting(true);
 
         router.post(
-            route('stock.store'),
+            route('recipe.store'),
             {
                 shop_id: shopId,
+                product_id: productId,
                 ingredient_id: ingredientId,
-                stock: form.stock,
+                quantity: form.quantity,
             },
             {
                 onSuccess: () => {
                     toast.success('Ingredient added to shop!');
                     setOpen(false);
-                    setForm({ stock: '' });
+                    setForm({ quantity: '' });
                     setIngredientId(null);
-                    router.reload({ only: ['currentShopWithIngredients'] });
+                    router.reload({ only: ['currentIngredients'] });
                 },
                 onError: (err) => {
                     console.error('Submission error:', err);
@@ -106,10 +125,11 @@ export default function IngredientShopSetup() {
         if (!editing) return;
         setIsSubmitting(true);
 
-        router.put(`/stock/${editing.id}`, {
+        router.put(`/recipe/${editing.id}`, {
             shop_id: shopId,
+            product_id: productId,
             ingredient_id: ingredientId,
-            stock: form.stock,
+            quantity: form.quantity,
         }, {
             onSuccess: () => {
                 toast.success('Ingredient updated');
@@ -117,7 +137,7 @@ export default function IngredientShopSetup() {
                 setEditing(null);
                 setEditingIngredientName(null);
                 setIngredientId(null);
-                setForm({ stock: '' });
+                setForm({ quantity: '' });
             },
             onFinish: () => setIsSubmitting(false),
         });
@@ -128,26 +148,9 @@ export default function IngredientShopSetup() {
         setEditing(item);
         setEditingIngredientName(item.name)
         setForm({
-            stock: String(item.pivot.stock),
+            quantity: String(item.pivot.quantity),
         });
         setEditDialog(true);
-    };
-
-    const toggleStatus = (ingredient: IngredientWithPivot) => {
-        const shop_id = ingredient.pivot.shop_id;
-        const ingredient_id = ingredient.pivot.ingredient_id;
-
-        router.get(`/stock/status`, {
-            shop_id: shop_id,
-            ingredient_id: ingredient_id,
-        }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                toast.success('Status updated')
-                router.reload({ only: ['currentShopWithIngredients'] });
-            },
-            onError: () => toast.success('Status Error'),
-        });
     };
 
     return (
@@ -155,8 +158,8 @@ export default function IngredientShopSetup() {
             <Head title="Ingredient Shop Setup" />
 
             <div className="p-4 space-y-4">
-                <h1 className="text-2xl font-bold">Price by Shop</h1>
-                <p className="text-gray-600">Setup ingredient stock by shop</p>
+                <h1 className="text-2xl font-bold">Recipe by Shop</h1>
+                <p className="text-gray-600">Setup recipe by shop</p>
 
                 <div className="flex gap-4 items-center">
                     {/* <Select onValueChange={handleShopChange}>
@@ -184,19 +187,19 @@ export default function IngredientShopSetup() {
 
                     <select
                         className="border rounded p-2 w-full max-w-sm dark:bg-transparent"
-                        onChange={(e) => setIngredientId(Number(e.target.value))}
-                        value={ingredientId ?? ''}
+                        value={productId ?? ''}
+                        onChange={handleProductChange}
                         disabled={!shopId}
                     >
-                        <option value="">Select Ingredient</option>
-                        {availableIngredients.map((ingredient) => (
-                            <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>
+                        <option value="">Select Product</option>
+                        {products.map((product) => (
+                            <option key={product.id} value={product.id}>{product.name}</option>
                         ))}
                     </select>
 
                     <Dialog open={open} onOpenChange={setOpen}>
                         <DialogTrigger asChild>
-                            <Button disabled={!shopId || !ingredientId}>Add</Button>
+                            <Button disabled={!shopId || !productId}>Add</Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-lg">
                             <DialogHeader>
@@ -205,34 +208,36 @@ export default function IngredientShopSetup() {
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="text-sm">
                                     <div className="mb-2"><strong>Shop:</strong> {shops.find(s => s.id === shopId)?.name || '-'}</div>
-                                    <div className="mb-2"><strong>Ingredient:</strong> {availableIngredients.find(p => p.id === ingredientId)?.name || '-'}</div>
+                                    <div className="mb-2"><strong>Product:</strong> {products.find(p => p.id === productId)?.name || '-'}</div>
+                                </div>
+
+                                <div>
+                                    <select
+                                        className="border rounded p-2 w-full max-w-sm dark:bg-transparent"
+                                        onChange={(e) => setIngredientId(Number(e.target.value))}
+                                        value={ingredientId ?? ''}
+                                        disabled={!shopId || !productId}
+                                    >
+                                        <option value="">Select Product</option>
+                                        {availableIngredients.map((ingredient) => (
+                                            <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>
+                                        ))}
+                                    </select>
+                                    {errors.ingredient_id && <p className="text-sm text-red-600 mt-1">{errors.ingredient_id}</p>}
                                 </div>
 
                                 <div>
                                     <input
                                         type="number"
-                                        name="stock"
-                                        value={form.stock}
-                                        onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                                        placeholder="Price"
+                                        name="quantity"
+                                        value={form.quantity}
+                                        onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                                        placeholder="Quantity Required"
                                         required
                                         className="border rounded p-2 w-full"
                                     />
-                                    {errors.stock && <p className="text-sm text-red-600 mt-1">{errors.stock}</p>}
+                                    {errors.quantity && <p className="text-sm text-red-600 mt-1">{errors.quantity}</p>}
                                 </div>
-
-                                {/* <div>
-                                    <input
-                                        type="number"
-                                        name="stock"
-                                        value={form.stock}
-                                        onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                                        placeholder="Stock"
-                                        required
-                                        className="border rounded p-2 w-full"
-                                    />
-                                    {errors.stock && <p className="text-sm text-red-600 mt-1">{errors.stock}</p>}
-                                </div> */}
 
                                 <DialogFooter>
                                     <Button type="submit" disabled={isSubmitting}>
@@ -253,35 +258,22 @@ export default function IngredientShopSetup() {
                                 <div className="text-sm">
                                     <div className="mb-2"><strong>Shop:</strong> {shops.find(s => s.id === shopId)?.name || '-'}</div>
                                     {errors.shop_id && <p className="text-sm text-red-600 mt-1">{errors.shop_id}</p>}
-                                    <div className="mb-2"><strong>Ingredient:</strong> {editingIngredientName}</div>
+                                    <div className="mb-2"><strong>Product:</strong> {editingIngredientName}</div>
                                     {errors.ingredient_id && <p className="text-sm text-red-600 mt-1">{errors.ingredient_id}</p>}
                                 </div>
 
                                 <div>
                                     <input
                                         type="number"
-                                        name="stock"
-                                        value={form.stock}
-                                        onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                                        name="quantity"
+                                        value={form.quantity}
+                                        onChange={(e) => setForm({ ...form, quantity: e.target.value })}
                                         placeholder="Price"
                                         required
                                         className="border rounded p-2 w-full"
                                     />
-                                    {errors.stock && <p className="text-sm text-red-600 mt-1">{errors.stock}</p>}
+                                    {errors.quantity && <p className="text-sm text-red-600 mt-1">{errors.quantity}</p>}
                                 </div>
-
-                                {/* <div>
-                                    <input
-                                        type="number"
-                                        name="stock"
-                                        value={form.stock}
-                                        placeholder="Stock"
-                                        required
-                                        className="border rounded p-2 w-full"
-                                        readOnly
-                                    />
-                                    {errors.stock && <p className="text-sm text-red-600 mt-1">{errors.stock}</p>}
-                                </div> */}
 
                                 <DialogFooter>
                                     <Button type="submit" disabled={isSubmitting}>
@@ -299,26 +291,24 @@ export default function IngredientShopSetup() {
                         <thead className="bg-gray-100 dark:bg-sidebar">
                             <tr>
                                 <th className="px-4 py-2 border-r">Ingredient</th>
-                                <th className="px-4 py-2 border-r">SKU</th>
-                                <th className="px-4 py-2 border-r">Price</th>
-                                {/* <th className="px-4 py-2 border-r">Stock</th> */}
+                                <th className="px-4 py-2 border-r">Quantity</th>
                                 <th className="px-4 py-2 border-r">Status</th>
                                 <th className="px-4 py-2">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {currentShopWithIngredients?.ingredients.length === 0 ? (
+                            {currentIngredients?.ingredients.length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="px-4 py-4 text-center">
                                         No ingredients found.
                                     </td>
                                 </tr>
                             ) : (
-                                currentShopWithIngredients?.ingredients.map((ingredient: IngredientWithPivot) => (
+                                currentIngredients?.ingredients.map((ingredient: IngredientWithPivot) => (
                                     <tr key={ingredient.id} className="border-t">
                                         <td className="px-4 py-2 border-r">{ingredient.name}</td>
-                                        <td className="px-4 py-2 border-r text-right">{formatNumber(ingredient.pivot.stock * 1)}</td>
-                                        {/* <td className="px-4 py-2 border-r text-right">{ingredient.pivot.stock}</td> */}
+                                        <td className="px-4 py-2 border-r text-right">{formatNumber(ingredient.pivot.quantity * 1)}</td>
+                                        {/* <td className="px-4 py-2 border-r text-right">{ingredient.pivot.quantity}</td> */}
                                         <td className="px-4 py-2 border-r text-center">
                                             {/* <span className={`px-2 py-1 rounded text-white text-xs font-semibold ${ingredient.pivot.isactive == true ? 'bg-green-500' : 'bg-red-500'}`}>
                                                 {ingredient.pivot.isactive == true ? 'Active' : 'Disable'}
@@ -326,7 +316,6 @@ export default function IngredientShopSetup() {
                                             <Button
                                                 size="sm"
                                                 className={`${ingredient.pivot.isactive == true ? 'bg-green-500' : 'bg-red-500'}`}
-                                                onClick={() => toggleStatus(ingredient)}
                                             >
                                                 {ingredient.pivot.isactive == true ? 'Active' : 'Disable'}
                                             </Button>

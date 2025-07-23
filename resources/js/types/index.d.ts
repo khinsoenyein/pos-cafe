@@ -94,7 +94,7 @@ export type ShopWithProducts = Shop & {
   products: ProductWithPivot[];
 };
 
-export type ShopWithIngredients = Shop & {
+export type ProductWithIngredients = Product & {
   ingredients: IngredientWithPivot[];
 };
 
@@ -129,12 +129,19 @@ export type IngredientShop = {
 
 export type IngredientWithPivot = Ingredient & {
   pivot: {
-    stock: number;
+    quantity: number;
     ingredient_id: number;
     shop_id: number;
+    product_id: number;
     isactive: boolean;
   };
 };
+
+export type IngredientProduct = {
+    shop: Shop;
+    product: Product;
+    ingredients: IngredientWithPivot[];
+}
 
 export type Inventory = {
   id: number;
