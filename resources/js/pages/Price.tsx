@@ -145,10 +145,10 @@ export default function ProductShopSetup() {
         }, {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success('Status updated')
                 router.reload({ only: ['currentShopWithProducts'] });
+                toast.success('Status updated')
             },
-            onError: () => toast.success('Status Error'),
+            onError: () => toast.warning('Status Error'),
         });
     };
 

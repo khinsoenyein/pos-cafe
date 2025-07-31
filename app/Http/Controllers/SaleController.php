@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CodeGenerator;
+use App\Models\IngredientProduct;
+use App\Models\IngredientShop;
+use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
@@ -57,11 +61,17 @@ class SaleController extends Controller
         DB::beginTransaction();
         try {
             $shop = Shop::findOrFail($validated['shop_id']);
+
+            $voucher_number = CodeGenerator::generateID(Sale::class, $validated['shop_id'], 'shop_id', 'voucher_number', 'S'.$shop->code, 4);
             
+            // return response()->json([
+            //     'voucher_number' => $voucher_number
+            // ]);
             // Create the Sale
             $sale = Sale::create([
                 'shop_id' => $shop->id,
-                'sale_date' => now(),
+                'voucher_number' => $voucher_number,
+                'sale_date' => date("Y-m-d"),
                 'total'   => $request->input('total', 0),
                 'created_user' => Auth::user()->id
                 //'customer' => $request->input('customer'), // add if needed
@@ -78,12 +88,51 @@ class SaleController extends Controller
                     'created_user' => Auth::user()->id
                 ]);
 
+                $recipes = IngredientProduct::where('shop_id',$shop->id)
+                                ->where('product_id', $item['product_id'])
+                                ->where('isdeleted', false)
+                                ->where('isactive', true)
+                                ->get();
+
+                foreach($recipes as $recipe){
+                    $qty = $recipe->quantity * $item['qty'];
+                    IngredientShop::where('shop_id', $recipe->shop_id)
+                            ->where('ingredient_id', $recipe->ingredient_id)
+                            ->decrement('stock', $qty);
+
+                    IngredientShop::updateOrCreate([
+                        'shop_id' => $recipe->shop_id,
+                        'ingredient_id' => $recipe->ingredient_id,
+                    ],[
+                        'change' => $qty * -1,
+                        'reason' => $voucher_number,
+                        'created_user' => Auth::user()->id
+                    ]);
+
+                    Inventory::create([
+                        'shop_id' => $recipe->shop_id,
+                        'ingredient_id' => $recipe->ingredient_id,
+                        'change' => $qty * -1,
+                        'reason' => $voucher_number,
+                        'remark' => 'Sales',
+                        'created_user' => Auth::user()->id
+                    ]);
+                }
+
                 // Update inventory - decrement stock in product_shop
-                $affected = DB::table('product_shop')
-                    ->where('product_id', $item['product_id'])
-                    ->where('shop_id', $shop->id)
-                    ->where('stock', '>=', $item['qty'])  // prevent over-selling
-                    ->decrement('stock', $item['qty']);
+                // $affected = DB::table('product_shop')
+                //     ->where('product_id', $item['product_id'])
+                //     ->where('shop_id', $shop->id)
+                //     ->where('stock', '>=', $item['qty'])  // prevent over-selling
+                //     ->decrement('stock', $item['qty']);
+
+                    
+                // $affected = DB::table('ingredient_product')
+                //     ->where('product_id', $item['product_id'])
+                //     ->where('shop_id', $shop->id)
+                //     ->where('shop_id', $shop->id)
+                //     ->where('stock', '>=', $item['qty'])  // prevent over-selling
+                //     ->decrement('stock', $item['qty']);
 
                 // if ($affected === 0) {
                 //     // Not enough stock

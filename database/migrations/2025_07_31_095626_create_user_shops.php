@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sales', function (Blueprint $table) {
+        Schema::create('user_shops', function (Blueprint $table) {
             $table->id();
             $table->foreignId('shop_id')->constrained()->onDelete('cascade');
-            $table->string('voucher_number')->unique();
-            
-            $table->dateTime('sale_date');
-            $table->decimal('total', 10, 2);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
             $table->longText('remark')->nullable();
 
@@ -28,6 +25,8 @@ return new class extends Migration
             $table->string('modified_user')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            
+            $table->unique(['shop_id', 'user_id']); // prevent duplicates
         });
     }
 
@@ -36,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sales');
+        Schema::dropIfExists('user_shops');
     }
 };

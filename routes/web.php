@@ -43,6 +43,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/recipe', [RecipeController::class, 'index'])->name('recipe.index');
     Route::post('/recipe', [RecipeController::class, 'store'])->name('recipe.store');
     Route::put('/recipe/{id}', [RecipeController::class, 'update'])->name('recipe.update');
+    Route::get('/recipe/get-ingredient', [RecipeController::class, 'getIngredient'])->name('recipe.get.ingredient');
+    Route::get('/recipe/status', [RecipeController::class, 'status'])->name(name: 'recipe.status');
 
     Route::get('/inventory-adjustment', [InventoryController::class, 'index'])->name('inventory.index');
     Route::post('/inventory-adjustment', [InventoryController::class, 'store'])->name('inventory.store');
@@ -50,6 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
     Route::post('/sales/store', [SaleController::class, 'store'])->name('sales.store');
+    Route::post('/sales/list', [SaleController::class, 'list'])->name('sales.list');
 
 
     Route::get('/user/shop', [UserController::class, 'shop'])->name('user.shop');

@@ -15,29 +15,35 @@ class RecipeController extends Controller
 {
     public function index(Request $request)
     {
-        $selectedShopId = $request->input('shop_id') ?? 1;
-        $selectedProductId = $request->input('product_id') ?? 1;
-        $currentIngredients = null;
+        // $selectedShopId = $request->input('shop_id') ?? 1;
+        // $selectedProductId = $request->input('product_id') ?? 1;
+        // $currentIngredients = null;
 
         // $currentIngredients = Product::with(['ingredients' => function ($query) use ($selectedShopId) {
         //     $query->wherePivot('shop_id', $selectedShopId)
         //         ->withPivot('id', 'quantity', 'shop_id', 'isactive');
         // }])->find($selectedProductId);
 
-        $currentIngredients = [
-            'shop' => Shop::find($selectedShopId),
-            'product' => Product::find($selectedProductId),
-            'ingredients' => IngredientProduct::where('shop_id','=', $selectedShopId)
-            ->where('product_id','=', $selectedProductId)->get()
-        ];
+        // $recipes = [
+        //     'shop' => Shop::find($selectedShopId),
+        //     'product' => Product::find($selectedProductId),
+        //     'ingredients' => IngredientProduct::where('shop_id','=', $selectedShopId)
+        //     ->where('product_id','=', $selectedProductId)->get()
+        // ];
 
-        $availableIngredients = Ingredient::get();
+        $recipes = IngredientProduct::with(['shop', 'product', 'ingredient'])->get();
+
+        // $currentIngredients = IngredientProduct::with(['shop', 'product', 'ingredient'])
+        //                     ->where('shop_id',$selectedShopId)
+        //                     ->where('product_id',$selectedProductId)->get();
 
         return Inertia::render('Recipe', [
             'shops' => Shop::all(['id', 'name']),
             'products' => Product::all(['id', 'name']),
-            'availableIngredients' => $availableIngredients,
-            'currentIngredients' => $currentIngredients,
+            'ingredients' => Ingredient::all(['id', 'name']),
+            // 'availableIngredients' => $availableIngredients,
+            'currentIngredients' => null,
+            'recipes' => $recipes,
             'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
         ]);
     }
@@ -46,28 +52,29 @@ class RecipeController extends Controller
     {
         $validated = $request->validate([
             'shop_id' => 'required|exists:shops,id',
+            'product_id' => 'required|exists:products,id',
             'ingredient_id' => 'required|exists:ingredients,id',
-            'price' => 'required|numeric|min:0',
-            'editing_ingredient_id' => 'nullable|exists:ingredients,id', // Used to identify if editing existing
+            'quantity' => 'required|numeric|min:0',
         ]);
 
-        $shop = Shop::findOrFail($validated['shop_id']);
-
         try {
-            // Check if ingredient is already attached to update, otherwise attach
-            if ($shop->ingredients()->where('ingredient_id', $validated['ingredient_id'])->exists()) {
-                return back()->withErrors(['error' => 'Ingredient already exists for the shop']);
-            } else {
-                $shop->ingredients()->attach($validated['ingredient_id'], [
-                    'price' => $validated['price'],
+            IngredientProduct::updateOrCreate(
+                [
+                    'shop_id' => $validated['shop_id'],
+                    'product_id' => $validated['product_id'],
+                    'ingredient_id' => $validated['ingredient_id'],
+                ],
+                [
+                    'quantity' => $validated['quantity'],
                     'created_user' => Auth::user()->id
-                ]);
-                $message = 'Ingredient added to shop successfully!';
-            }
+                ]
+            );
+
+            $message = 'Ingredient added to recipe successfully!';
 
             return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to save ingredient setup: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to save recipe: ' . $e->getMessage()]);
         }
     }
 
@@ -75,24 +82,29 @@ class RecipeController extends Controller
     {
         $validated = $request->validate([
             'shop_id' => 'required|exists:shops,id',
+            'product_id' => 'required|exists:products,id',
             'ingredient_id' => 'required|exists:ingredients,id',
-            'price' => 'required|numeric|min:0',
+            'quantity' => 'required|numeric|min:0',
         ]);
 
-        $shop = Shop::findOrFail($validated['shop_id']);
-
         try {
-            if ($shop->ingredients()->where('ingredient_id', $validated['ingredient_id'])->exists()) {
-                $shop->ingredients()->updateExistingPivot($validated['ingredient_id'], [
-                    'price' => $validated['price'],
+            IngredientProduct::updateOrCreate(
+                [
+                    'shop_id' => $validated['shop_id'],
+                    'product_id' => $validated['product_id'],
+                    'ingredient_id' => $validated['ingredient_id'],
+                ],
+                [
+                    'quantity' => $validated['quantity'],
                     'modified_user' => Auth::user()->id
-                ]);
-                $message = 'Ingredient updated for shop successfully!';
-            }
+                ]
+            );
+
+            $message = 'Ingredient added to recipe successfully!';
 
             return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to save ingredient setup: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to save recipe: ' . $e->getMessage()]);
         }
     }
 
@@ -110,5 +122,39 @@ class RecipeController extends Controller
         }
 
         return back()->withErrors(['error' => 'Failed to remove ingredient from shop.']);
+    }
+
+    public function status(Request $request)
+    {
+        $validated = $request->validate([
+            'recipe_id' => 'required|exists:ingredient_product,id',
+            'shop_id' => 'required|exists:shops,id',
+            'product_id' => 'required|exists:products,id',
+        ]);
+
+        $recipe = IngredientProduct::findOrFail($validated['recipe_id']);
+
+        try {
+            $recipe->update([
+                'isactive' => ($recipe->isactive == 1 ? 0 : 1),
+                'modified_user' => Auth::id(),
+            ]);
+
+            return redirect()->back()->with('success', 'Status updated.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to save product setup: ' . $e->getMessage()]);
+        }
+    }
+
+    public function getIngredient(Request $request)
+    {
+        $selectedShopId = $request->input('shop_id');
+        $selectedProductId = $request->input('product_id');
+
+        $currentIngredients = IngredientProduct::with(['shop', 'product', 'ingredient'])
+                            ->where('shop_id',$selectedShopId)
+                            ->where('product_id',$selectedProductId)->get();
+
+        return response()->json($currentIngredients);
     }
 }

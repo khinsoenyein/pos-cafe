@@ -137,10 +137,28 @@ export type IngredientWithPivot = Ingredient & {
   };
 };
 
+// export type IngredientProduct = {
+//     shop: Shop;
+//     product: Product;
+//     ingredients: IngredientWithPivot[];
+// }
+
 export type IngredientProduct = {
-    shop: Shop;
-    product: Product;
-    ingredients: IngredientWithPivot[];
+  id: number;
+  shop_id: number;
+  product_id: number;
+  ingredient_id: number;
+  quantity: number;
+  remark?: string;
+  isactive: boolean;
+  shop: Shop;
+  product: Product;
+  ingredient: Ingredient;
+  created_by: {
+    id: number,
+    name: string
+  };
+  created_at: string
 }
 
 export type Inventory = {

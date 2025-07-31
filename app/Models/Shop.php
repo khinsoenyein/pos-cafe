@@ -22,6 +22,13 @@ class Shop extends Model
                     ->withTimestamps();
     }
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_shops', 'shop_id', 'id')
+                    ->withPivot( 'remark', 'isactive')
+                    ->withTimestamps();
+    }
+
     public function sales()
     {
         return $this->hasMany(Sale::class);

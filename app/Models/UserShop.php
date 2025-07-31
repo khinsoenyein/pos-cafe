@@ -4,24 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class IngredientProduct extends Model
+class UserShop extends Model
 {
-    protected $table = 'ingredient_product';
-    protected $fillable = ['shop_id', 'product_id', 'ingredient_id', 'quantity', 'remark', 'isactive'];
-
+    protected $table = 'user_shops';
+    protected $fillable = ['shop_id', 'user_id', 'remark', 'isactive'];
+   
     public function shop()
     {
         return $this->belongsTo(Shop::class, 'shop_id', 'id');
     }
 
-    public function product()
+    public function user()
     {
-        return $this->belongsTo(Product::class, 'product_id', 'id');
-    }
-
-    public function ingredient()
-    {
-        return $this->belongsTo(Ingredient::class, 'ingredient_id', 'id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function createdBy()

@@ -1,11 +1,12 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, usePage } from '@inertiajs/react';
-import { ProductShop, type BreadcrumbItem } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
+import { IngredientShop, type BreadcrumbItem } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
-import { columns } from '@/components/ProductShop/columns';
+import { columns } from '@/components/IngredientShop/columns';
+import { useEffect } from 'react';
 
 type PageProps = {
-  productShops: ProductShop[];
+  ingredientShops: IngredientShop[];
   errors: Record<string, string>;
 };
 
@@ -15,11 +16,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Inventories() {
-  const { shops, products, inventories, productShops, errors } = usePage<PageProps>().props;
+  const { ingredientShops, errors } = usePage<PageProps>().props;
+
+  useEffect(() => {
+      router.reload({ only: ['ingredientShops'] });
+  }, []);
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Products" />
+      <Head title="Balance" />
       <div className="flex flex-col gap-4 p-4 overflow-x-auto">
         {/* <h1 className="text-2xl font-bold">Product List</h1> */}
         <div>
@@ -28,7 +33,7 @@ export default function Inventories() {
         </div>
 
         {/* Product Table */}
-        <DataTable columns={columns} data={productShops}/>
+        <DataTable columns={columns} data={ingredientShops}/>
       </div>
     </AppLayout>
   );
