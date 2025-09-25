@@ -20,6 +20,7 @@ export interface NavItem {
     href: string;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    adminOnly?: boolean;
 }
 
 export interface SharedData {
@@ -35,6 +36,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
+    admin: boolean;
     avatar?: string;
     email_verified_at: string | null;
     created_at: string;

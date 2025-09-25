@@ -17,8 +17,15 @@ class UserSeeder extends Seeder
         $datas = [
             [
                 'name' => 'Admin', 
-                'email' => 'admin@admin.com',
-                'password' => Hash::make('123456'), 
+                'email' => 'admin@jaktgi.com',
+                'password' => Hash::make('admin123'), 
+                'admin' => true
+            ],
+            [
+                'name' => 'User', 
+                'email' => 'user@jaktgi.com',
+                'password' => Hash::make('user123'), 
+                'admin' => false
             ],
         ];
 

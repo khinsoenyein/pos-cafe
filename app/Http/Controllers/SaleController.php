@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Shop;
+use App\Models\UserShop;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -19,26 +20,52 @@ class SaleController extends Controller
 {
     public function index()
     {
+        $eligibleShops = UserShop::where('user_id', Auth::user()->id)->select('shop_id')->get();
+
         $shops = Shop::with(['products' => function ($q) {
             $q->select('products.id', 'name', 'sku')
             ->where(['products.isdeleted' => '0', 'products.isactive' => '1'])->orderBy('name')
             ->withPivot('price');
-        }])->where(['isdeleted' => '0', 'isactive' => '1'])->orderBy('name')->get();
+        }])->where(['isdeleted' => '0', 'isactive' => '1'])
+        ->whereIn('id', $eligibleShops)
+        ->orderBy('name')->get();
 
         return Inertia::render('Sales/Create', [
             'shops' => $shops
         ]);
     }
 
+    public function testing()
+    {
+        $eligibleShops = UserShop::where('user_id', Auth::user()->id)->select('shop_id')->get()->toArray();
+
+        $shops = Shop::with(['products' => function ($q) {
+            $q->select('products.id', 'name', 'sku')
+            ->where(['products.isdeleted' => '0', 'products.isactive' => '1'])->orderBy('name')
+            ->withPivot('price');
+        }])->where(['isdeleted' => '0', 'isactive' => '1'])
+        ->whereIn('id', $eligibleShops)
+        ->orderBy('name')->get();
+
+        return response()->json([
+            'eligibleShops' => $eligibleShops,
+            'shops' => $shops
+        ]);
+    }
+
     public function create()
     {
+        $eligibleShops = UserShop::where('user_id', Auth::user()->id)->select('shop_id')->get();
+
         $shops = Shop::with(['products' => function ($q) {
             $q->select('products.id', 'name', 'sku', 'image')
             ->wherePivot('isdeleted', false)
             ->wherePivot('isactive', true)
             ->orderBy('name')
             ->withPivot('price');
-        }])->where(['isdeleted' => '0', 'isactive' => '1'])->orderBy('name')->get();
+        }])->where(['isdeleted' => '0', 'isactive' => '1'])
+        ->whereIn('id', $eligibleShops)
+        ->orderBy('name')->get();
 
         return Inertia::render('Sales/Create', [
             'shops' => $shops
@@ -96,18 +123,19 @@ class SaleController extends Controller
 
                 foreach($recipes as $recipe){
                     $qty = $recipe->quantity * $item['qty'];
-                    IngredientShop::where('shop_id', $recipe->shop_id)
-                            ->where('ingredient_id', $recipe->ingredient_id)
-                            ->decrement('stock', $qty);
+                    
+                    // IngredientShop::where('shop_id', $recipe->shop_id)
+                    //         ->where('ingredient_id', $recipe->ingredient_id)
+                    //         ->decrement('stock', $qty);
 
-                    IngredientShop::updateOrCreate([
-                        'shop_id' => $recipe->shop_id,
-                        'ingredient_id' => $recipe->ingredient_id,
-                    ],[
-                        'change' => $qty * -1,
-                        'reason' => $voucher_number,
-                        'created_user' => Auth::user()->id
-                    ]);
+                    // IngredientShop::updateOrCreate([
+                    //     'shop_id' => $recipe->shop_id,
+                    //     'ingredient_id' => $recipe->ingredient_id,
+                    // ],[
+                    //     'change' => $qty * -1,//it is for sales so it should deduct.
+                    //     'reason' => $voucher_number,
+                    //     'created_user' => Auth::user()->id
+                    // ]);
 
                     Inventory::create([
                         'shop_id' => $recipe->shop_id,

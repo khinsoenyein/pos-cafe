@@ -26,12 +26,12 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
+                {/* <DropdownMenuItem asChild>
                     <Link className="block w-full" href={route('user.shop.index')} as="button" prefetch onClick={cleanup}>
                         <HousePlus className="mr-2" />
                         User Access
                     </Link>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuItem asChild>
                     <Link className="block w-full" href={route('profile.edit')} as="button" prefetch onClick={cleanup}>
                         <Settings className="mr-2" />

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\InventoryController;
@@ -12,9 +13,12 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+// Route::get('/', function () {
+//     return Inertia::render('welcome');
+// })->name('home');
+
+Route::get('/', [AuthenticatedSessionController::class, 'create'])
+        ->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Route::get('dashboard', function () {
@@ -56,6 +60,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     Route::get('/user/shop', [UserController::class, 'shop'])->name('user.shop');
+
+    
+    Route::get('testing', [SaleController::class, 'testing']);
 
     // Route::get('testing', function () {
     //     return Inertia::render('Inventories/Page');

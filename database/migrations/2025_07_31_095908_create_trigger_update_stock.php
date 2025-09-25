@@ -70,29 +70,32 @@ return new class extends Migration
                 FROM inventories
                 WHERE shop_id = NEW.shop_id AND ingredient_id = NEW.ingredient_id;
 
-                UPDATE ingredient_shop
-                SET stock = total_change
-                WHERE shop_id = NEW.shop_id AND ingredient_id = NEW.ingredient_id;
+                INSERT INTO ingredient_shop (shop_id, ingredient_id, stock, created_at, created_user, updated_at)
+                VALUES (NEW.shop_id, NEW.ingredient_id, total_change, NOW(), NEW.created_user, NOW())
+                ON DUPLICATE KEY UPDATE
+                    stock = VALUES(stock),
+                    modified_user = NEW.created_user,
+                    updated_at = NOW();
             END;
         ");
 
         // Trigger for AFTER UPDATE
-        DB::unprepared("
-            CREATE TRIGGER update_stock_after_inventory_update
-            AFTER UPDATE ON inventories
-            FOR EACH ROW
-            BEGIN
-                DECLARE total_change INT DEFAULT 0;
+        // DB::unprepared("
+        //     CREATE TRIGGER update_stock_after_inventory_update
+        //     AFTER UPDATE ON inventories
+        //     FOR EACH ROW
+        //     BEGIN
+        //         DECLARE total_change INT DEFAULT 0;
 
-                SELECT IFNULL(SUM(inventories.change), 0) INTO total_change
-                FROM inventories
-                WHERE shop_id = NEW.shop_id AND ingredient_id = NEW.ingredient_id;
+        //         SELECT IFNULL(SUM(inventories.change), 0) INTO total_change
+        //         FROM inventories
+        //         WHERE shop_id = NEW.shop_id AND ingredient_id = NEW.ingredient_id;
 
-                UPDATE ingredient_shop
-                SET stock = total_change
-                WHERE shop_id = NEW.shop_id AND ingredient_id = NEW.ingredient_id;
-            END;
-        ");
+        //         UPDATE ingredient_shop
+        //         SET stock = total_change
+        //         WHERE shop_id = NEW.shop_id AND ingredient_id = NEW.ingredient_id;
+        //     END;
+        // ");
     }
 
     /**
@@ -105,6 +108,6 @@ return new class extends Migration
         // DB::unprepared('DROP TRIGGER IF EXISTS update_stock_after_sale_update');
         
         DB::unprepared('DROP TRIGGER IF EXISTS update_stock_after_inventory_insert');
-        DB::unprepared('DROP TRIGGER IF EXISTS update_stock_after_inventory_update');
+        // DB::unprepared('DROP TRIGGER IF EXISTS update_stock_after_inventory_update');
     }
 };

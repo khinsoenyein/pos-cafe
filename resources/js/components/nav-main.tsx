@@ -4,6 +4,7 @@ import { Link, usePage } from '@inertiajs/react';
 
 export function NavMain({ items = [], title = '' }: { items: NavItem[], title: string }) {
     const page = usePage();
+
     return (
         <SidebarGroup className="px-2 py-0">
             <SidebarGroupLabel>{title}</SidebarGroupLabel>

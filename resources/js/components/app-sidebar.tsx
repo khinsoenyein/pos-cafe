@@ -2,7 +2,7 @@ import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
+import { User, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BookOpen, CircleDollarSign, FileBox, FileChartPie, FileText, Folder, LayoutGrid, LayoutList, ListCheck, LucideFileText, Package, PackageCheck, PackageOpen, ShoppingBasket, Store } from 'lucide-react';
 import AppLogo from './app-logo';
@@ -88,7 +88,13 @@ const footerNavItems: NavItem[] = [
     },
 ];
 
-export function AppSidebar() {
+interface UserMenuContentProps {
+    user: User;
+}
+
+export function AppSidebar({ user }: UserMenuContentProps) {
+    const isAdmin = Boolean(user?.admin); 
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -103,14 +109,22 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
-                <NavMain items={mainNavItems} title='' />
-                <NavMain items={posNavItems} title='POS' />
-                <NavMain items={masterNavItems} title='Master' />
-                <NavMain items={recipeNavItems} title='Recipe' />
-                <NavMain items={inventoryNavItems} title='Inventory' />
-                <NavMain items={reportNavItems} title='Report' />
-            </SidebarContent>
+            
+            {isAdmin == true ? (
+                <SidebarContent>
+                    <NavMain items={mainNavItems} title='' />
+                    <NavMain items={posNavItems} title='POS' />
+                    <NavMain items={masterNavItems} title='Master' />
+                    <NavMain items={recipeNavItems} title='Recipe' />
+                    <NavMain items={inventoryNavItems} title='Inventory' />
+                    <NavMain items={reportNavItems} title='Report' />
+                </SidebarContent>
+            ):(
+                <SidebarContent>
+                    <NavMain items={mainNavItems} title='' />
+                    <NavMain items={posNavItems} title='POS' />
+                </SidebarContent>
+            )}
 
             <SidebarFooter>
                 {/* <NavFooter items={footerNavItems} className="mt-auto" /> */}

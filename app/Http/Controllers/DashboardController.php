@@ -21,9 +21,9 @@ class DashboardController extends Controller
         $today = Carbon::today();
 
         return Inertia::render('Dashboard', [
-            // 'totalShops' => Shop::where('isactive', true)->count(),
-            // 'totalProducts' => Product::where('isactive', true)->count(),
-            // 'totalSalesToday' => SaleItem::whereDate('created_at', $today)->sum(DB::raw('qty * price')),
+            'totalShops' => Shop::where('isactive', true)->count(),
+            'totalProducts' => Product::where('isactive', true)->count(),
+            'totalSalesToday' => SaleItem::whereDate('created_at', $today)->sum(DB::raw('qty * price')),
             // 'lowStockCount' => ProductShop::where('stock', '<', 10)->where('isdeleted', false)->count(),
             // 'salesByShop' => $this->getSalesByShop($today),
             // 'lowStockProducts' => $this->getLowStockProducts(),

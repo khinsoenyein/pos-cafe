@@ -23,9 +23,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Sales() {
     const { shops, errors } = usePage<PageProps>().props;
 
-    useEffect(() => {
-        router.reload({ only: ['shops'] });
-    }, []);
+    console.log(shops);
+
+    // useEffect(() => {
+    //     router.reload({ only: ['shops'] });
+    // }, []);
 
     const [shopId, setShopId] = useState<number>(shops[0]?.id ?? 0);
     const currentShop = shops.find(s => s.id === shopId);
