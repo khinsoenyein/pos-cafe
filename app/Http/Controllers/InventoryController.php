@@ -16,7 +16,7 @@ class InventoryController extends Controller
     {
         $inventories = Inventory::with('shop', 'ingredient', 'createdBy')->orderBy('created_at', 'desc')->get();
 
-        return Inertia::render('Inventories/Index', [
+        return Inertia::render('Inventories/Adjustment', [
             'inventories' => $inventories,
             'ingredients' => Ingredient::select('id', 'name')->get(),
             'shops' => Shop::select('id', 'name')->get(),

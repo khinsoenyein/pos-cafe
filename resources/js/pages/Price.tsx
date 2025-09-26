@@ -49,8 +49,8 @@ export default function ProductShopSetup() {
     const [editDialog, setEditDialog] = useState(false);
     const [editing, setEditing] = useState<ProductWithPivot | null>(null);
 
-    const handleShopChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const newShopId = Number(e.target.value);
+    const handleShopChange = (shopId: string) => {
+        const newShopId = Number(shopId);
         setShopId(newShopId);
         setProductId(null);
         setForm({ price: '' });
@@ -161,40 +161,31 @@ export default function ProductShopSetup() {
                 <p className="text-gray-600">Setup product price by shop</p>
 
                 <div className="flex gap-4 items-center">
-                    {/* <Select onValueChange={handleShopChange}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Select a shop" />
+                    <Select onValueChange={handleShopChange} value={shopId?.toString()}>
+                        <SelectTrigger className="border rounded p-2 w-full max-w-sm dark:bg-transparent">
+                            <SelectValue placeholder="Select Shop" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectGroup>
-                                {shops.map((shop) => (
-                                    <SelectItem value="{shop.id}">{shop.name}</SelectItem>
-                                ))}
-                            </SelectGroup>
+                            {shops.map((shop) => (
+                            <SelectItem key={shop.id} value={String(shop.id)}>
+                                {shop.name}
+                            </SelectItem>
+                            ))}
                         </SelectContent>
-                    </Select> */}
-                    <select
-                        className="border rounded p-2 w-full max-w-sm dark:bg-transparent"
-                        value={shopId}
-                        onChange={handleShopChange}
-                    >
-                        <option value="">Select Shop</option>
-                        {shops.map((shop) => (
-                            <option key={shop.id} value={shop.id}>{shop.name}</option>
-                        ))}
-                    </select>
-
-                    <select
-                        className="border rounded p-2 w-full max-w-sm dark:bg-transparent"
-                        onChange={(e) => setProductId(Number(e.target.value))}
-                        value={productId ?? ''}
-                        disabled={!shopId}
-                    >
-                        <option value="">Select Product</option>
-                        {availableProducts.map((product) => (
-                            <option key={product.id} value={product.id}>{product.name}</option>
-                        ))}
-                    </select>
+                    </Select>
+                    
+                    <Select onValueChange={(val) => setProductId(Number(val))} value={productId?.toString()}>
+                        <SelectTrigger className="border rounded p-2 w-full max-w-sm dark:bg-transparent">
+                            <SelectValue placeholder="Select Product" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {availableProducts.map((product) => (
+                            <SelectItem key={product.id} value={String(product.id)}>
+                                {product.name}
+                            </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
                     <Dialog open={open} onOpenChange={setOpen}>
                         <DialogTrigger asChild>
@@ -211,7 +202,7 @@ export default function ProductShopSetup() {
                                 </div>
 
                                 <div>
-                                    <input
+                                    <Input
                                         type="number"
                                         name="price"
                                         value={form.price}

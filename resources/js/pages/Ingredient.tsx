@@ -111,7 +111,7 @@ export default function Products() {
         </div>
 
         <div className="flex items-center justify-between">
-          <input
+          <Input
             type="text"
             placeholder="Search ingredients..."
             className="border rounded p-2 w-full max-w-sm mr-2"

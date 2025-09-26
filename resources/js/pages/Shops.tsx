@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 type PageProps = {
   shops: Shop[];
@@ -100,12 +102,12 @@ export default function Shops() {
           <span className="text-sm text-gray-500">Shop Information</span>
         </div>
         <div className="flex items-center justify-between">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="border rounded p-2 w-full max-w-sm mr-2"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+          <Input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search product..."
+              className="border rounded p-2 max-w-sm"
           />
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -117,7 +119,7 @@ export default function Shops() {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <input
+                  <Input
                     type="text"
                     name="name"
                     value={form.name}
@@ -129,7 +131,7 @@ export default function Shops() {
                   {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
                 </div>
                 <div>
-                  <input
+                  <Input
                     type="text"
                     name="code"
                     value={form.code}
@@ -141,17 +143,17 @@ export default function Shops() {
                   {errors.code && <p className="text-sm text-red-600 mt-1">{errors.code}</p>}
                 </div>
                 <div>
-                  <textarea
+                  <Textarea 
                     name="location"
                     value={form.location}
                     onChange={handleChange}
-                    placeholder="Description"
+                    placeholder="Location"
                     className="border rounded p-2 w-full dark:bg-transparent"
                   />
                   {errors.location && <p className="text-sm text-red-600 mt-1">{errors.location}</p>}
                 </div>
                 <div>
-                  <textarea
+                  <Textarea 
                     name="remark"
                     value={form.remark}
                     onChange={handleChange}

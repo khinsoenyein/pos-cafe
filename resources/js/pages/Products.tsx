@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 type PageProps = {
   products: Product[];
@@ -123,12 +124,12 @@ export default function Products() {
         </div>
 
         <div className="flex items-center justify-between">
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="border rounded p-2 w-full max-w-sm mr-2"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+          <Input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search product..."
+              className="border rounded p-2 max-w-sm"
           />
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -140,25 +141,25 @@ export default function Products() {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
                 <div>
-                  <input
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    placeholder="Product Name"
-                    required
-                    className="border rounded p-2 w-full dark:bg-transparent"
+                  <Input
+                      type="text"
+                      name="name"
+                      value={form.name}
+                      onChange={handleChange}
+                      placeholder="Product Name"
+                      required
+                      className="border rounded p-2 w-full dark:bg-transparent"
                   />
                   {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
                 </div>
                 <div>
-                  <input
-                    type="text"
-                    name="sku"
-                    value={form.sku}
-                    onChange={handleChange}
-                    placeholder="SKU (optional)"
-                    className="border rounded p-2 w-full dark:bg-transparent"
+                  <Input
+                      type="text"
+                      name="sku"
+                      value={form.sku}
+                      onChange={handleChange}
+                      placeholder="SKU (optional)"
+                      className="border rounded p-2 w-full dark:bg-transparent"
                   />
                   {errors.sku && <p className="text-sm text-red-600 mt-1">{errors.sku}</p>}
                 </div>
@@ -174,7 +175,7 @@ export default function Products() {
                   {errors.image && <p className="text-sm text-red-600 mt-1">{errors.image}</p>}
                 </div>
                 <div>
-                  <textarea
+                  <Textarea 
                     name="description"
                     value={form.description}
                     onChange={handleChange}
@@ -184,7 +185,7 @@ export default function Products() {
                   {errors.description && <p className="text-sm text-red-600 mt-1">{errors.description}</p>}
                 </div>
                 <div>
-                  <textarea
+                  <Textarea 
                     name="remark"
                     value={form.remark}
                     onChange={handleChange}

@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button"
 import { formatDate, formatNumber } from "@/lib/utils"
-import { Inventory } from "@/types"
+import { Sale } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown } from "lucide-react"
 
-export const columns: ColumnDef<Inventory>[] = [
+export const columns: ColumnDef<Sale>[] = [
     {
         accessorKey: "shop.name",
         header: ({ column }) => {
@@ -23,14 +23,14 @@ export const columns: ColumnDef<Inventory>[] = [
         filterFn: 'includesString',
     },
     {
-        accessorKey: "ingredient.name",
+        accessorKey: "voucher_number",
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Ingredient
+                    Voucher Number
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )
@@ -38,33 +38,33 @@ export const columns: ColumnDef<Inventory>[] = [
         filterFn: 'includesString',
     },
     {
-        accessorKey: "change",
+        accessorKey: "total",
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    <div className="text-right">Change</div>
+                    <div className="text-right">Total</div>
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )
         },
         cell: ({ row }) => {
-            const formatted = formatNumber(row.getValue("change"))
+            const formatted = formatNumber(row.getValue("total"))
             return <div className="text-center">{formatted}</div>
         },
         filterFn: 'inNumberRange',
     },
     {
-        accessorKey: "reason",
+        accessorKey: "remark",
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Reason
+                    Remark
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )
@@ -80,7 +80,7 @@ export const columns: ColumnDef<Inventory>[] = [
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Done By
+                    Issued By
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )
@@ -97,7 +97,7 @@ export const columns: ColumnDef<Inventory>[] = [
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Done On
+                    Issued On
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )

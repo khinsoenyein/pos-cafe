@@ -193,9 +193,27 @@ export type CartItem = {
   image_url?: string;
 };
 
-type SaleItem = {
+export type SaleItem = {
   product_id: number;
   product_name?: string;
   qty: number;
   price: number;
+};
+
+export type Sale = {
+  id: number;
+  shop_id: number;
+  voucher_number: string;
+  sale_date: Date;
+  total: number;
+  remark?: string;
+  shop: {
+    id: number,
+    name: string
+  };
+  created_by: {
+    id: number,
+    name: string
+  };
+  created_at: string
 };

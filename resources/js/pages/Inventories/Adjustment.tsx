@@ -10,12 +10,15 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectGroup, SelectLabel, SelectValue, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { toast } from 'sonner';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { formatDate } from '@/lib/utils';
 import { columns } from '@/components/Inventories/columns';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 type PageProps = {
   shops: Shop[];
@@ -53,8 +56,8 @@ export default function Inventories() {
     setForm({ ...form, [name]: value });
   };
 
-  const handleShopChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newShopId = Number(e.target.value);
+  const handleShopChange = (shopId: string) => {
+    const newShopId = Number(shopId);
     setShopId(newShopId);
     setIngredientId(null);
 
@@ -117,33 +120,37 @@ export default function Inventories() {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
                 <div>
-                  <select
-                    className="border rounded p-2 w-full dark:bg-transparent"
-                    value={shopId ?? ''}
-                    onChange={handleShopChange}
-                  >
-                    <option value="">Select Shop</option>
-                    {shops.map((shop) => (
-                      <option key={shop.id} value={shop.id}>{shop.name}</option>
-                    ))}
-                  </select>
+                  <Select onValueChange={handleShopChange} value={shopId?.toString()}>
+                      <SelectTrigger className="border rounded p-2 w-full dark:bg-transparent">
+                          <SelectValue placeholder="Select Shop" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          {shops.map((shop) => (
+                          <SelectItem key={shop.id} value={String(shop.id)}>
+                              {shop.name}
+                          </SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
                   {errors.shop_id && <p className="text-sm text-red-600 mt-1">{errors.shop_id}</p>}
                 </div>
                 <div>
-                  <select
-                    className="border rounded p-2 w-full dark:bg-transparent"
-                    value={ingredientId ?? ''}
-                    onChange={(e) => setIngredientId(Number(e.target.value))}
-                  >
-                    <option value="">Select Ingredient</option>
-                    {ingredients.map((ingredient) => (
-                      <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>
-                    ))}
-                  </select>
+                  <Select onValueChange={(val) => setIngredientId(Number(val))} value={ingredientId?.toString()}>
+                      <SelectTrigger className="border rounded p-2 w-full dark:bg-transparent">
+                          <SelectValue placeholder="Select Ingredient" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          {ingredients.map((ingredient) => (
+                          <SelectItem key={ingredient.id} value={String(ingredient.id)}>
+                              {ingredient.name}
+                          </SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
                   {errors.ingredient_id && <p className="text-sm text-red-600 mt-1">{errors.ingredient_id}</p>}
                 </div>
                 <div>
-                  <input
+                  <Input
                     type="number"
                     name="change"
                     value={form.change}
@@ -154,7 +161,7 @@ export default function Inventories() {
                   {errors.change && <p className="text-sm text-red-600 mt-1">{errors.change}</p>}
                 </div>
                 <div>
-                  <textarea
+                  <Textarea 
                     name="reason"
                     value={form.reason}
                     onChange={handleChange}
@@ -164,7 +171,7 @@ export default function Inventories() {
                   {errors.reason && <p className="text-sm text-red-600 mt-1">{errors.reason}</p>}
                 </div>
                 <div>
-                  <textarea
+                  <Textarea 
                     name="remark"
                     value={form.remark}
                     onChange={handleChange}

@@ -9,6 +9,8 @@ import CartSidebar from '@/components/Sales/CartSidebar';
 import ReceiptModal from '@/components/Sales/ReceiptModal';
 
 import type { Product, Shop, SaleItem } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 
 type PageProps = {
     shops: Shop[];
@@ -23,11 +25,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Sales() {
     const { shops, errors } = usePage<PageProps>().props;
 
-    console.log(shops);
+    // console.log(shops);
 
-    // useEffect(() => {
-    //     router.reload({ only: ['shops'] });
-    // }, []);
+    useEffect(() => {
+        router.reload({ only: ['shops'] });
+    }, []);
 
     const [shopId, setShopId] = useState<number>(shops[0]?.id ?? 0);
     const currentShop = shops.find(s => s.id === shopId);
@@ -38,8 +40,8 @@ export default function Sales() {
     const [search, setSearch] = useState<string>('');
 
     // Function to handle shop change and trigger Inertia visit
-    const handleShopChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const newShopId = Number(e.target.value);
+    const handleShopChange = (shopId: string) => {
+        const newShopId = Number(shopId);
         setShopId(newShopId);
         setItems([]); // Clear cart when shop changes
         setSearch(''); // Clear search term too
@@ -132,26 +134,27 @@ export default function Sales() {
                 <div className="flex-1">
                     <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
                         {/* Shop Selector */}
-                        {shops.length > 0 && ( // Ensure there are shops before rendering
-                            <select
-                                className="border rounded p-2 w-full sm:w-auto dark:bg-transparent flex-shrink-0" // w-auto for sm, flex-shrink-0 to not grow
-                                value={shopId}
-                                onChange={handleShopChange}
-                            >
-                                {shops.map(shop => (
-                                    <option key={shop.id} value={shop.id}>
+                        {shops.length > 0 && ( 
+                            <Select onValueChange={handleShopChange} value={shopId?.toString()}>
+                                <SelectTrigger className="border rounded p-2 w-full max-w-sm dark:bg-transparent">
+                                    <SelectValue placeholder="Select Shop" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {shops.map((shop) => (
+                                    <SelectItem key={shop.id} value={String(shop.id)}>
                                         {shop.name}
-                                    </option>
-                                ))}
-                            </select>
+                                    </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         )}
 
-                        <input
+                        <Input
                             type="text"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search product..."
-                            className="w-full p-2 border rounded flex-grow dark:bg-transparent"
+                            className="border rounded p-2"
                         />
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
