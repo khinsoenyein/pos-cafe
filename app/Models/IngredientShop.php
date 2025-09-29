@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class IngredientShop extends Model
 {
     protected $table = 'ingredient_shop';
-    protected $fillable = ['shop_id', 'ingredient_id', 'stock', 'remark'];
+    protected $fillable = ['shop_id', 'ingredient_id', 'unit_id', 'stock', 'remark'];
 
     public function shop()
     {
@@ -17,6 +17,11 @@ class IngredientShop extends Model
     public function ingredient()
     {
         return $this->belongsTo(Ingredient::class, 'ingredient_id', 'id');
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id', 'id');
     }
 
     public function createdBy()

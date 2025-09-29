@@ -55,6 +55,20 @@ export const columns: ColumnDef<Inventory>[] = [
             return <div className="text-center">{formatted}</div>
         },
         filterFn: 'inNumberRange',
+    },{
+        accessorKey: "unit.symbol",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Unit
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        filterFn: 'includesString',
     },
     {
         accessorKey: "reason",

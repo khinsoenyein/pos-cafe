@@ -14,7 +14,7 @@ class InventoryController extends Controller
 {
     public function index()
     {
-        $inventories = Inventory::with('shop', 'ingredient', 'createdBy')->orderBy('created_at', 'desc')->get();
+        $inventories = Inventory::with('shop', 'ingredient', 'unit', 'createdBy')->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Inventories/Adjustment', [
             'inventories' => $inventories,
@@ -52,7 +52,7 @@ class InventoryController extends Controller
 
     public function balance()
     {
-        $ingredientShops = IngredientShop::with('shop', 'ingredient', 'createdBy')->orderBy('shop_id')->get();
+        $ingredientShops = IngredientShop::with('shop', 'ingredient', 'unit', 'createdBy')->orderBy('shop_id')->get();
 
         return Inertia::render('Inventories/Balance', [
             'ingredientShops' => $ingredientShops,

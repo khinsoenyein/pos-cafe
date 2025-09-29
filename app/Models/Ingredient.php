@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ingredient extends Model
 {
-    protected $fillable = ['name', 'description', 'remark', 'created_user', 'modified_user'];
+    protected $fillable = ['name', 'description', 'unit_id', 'remark', 'created_user', 'modified_user'];
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id', 'id');
+    }
 
     public function inventory()
     {

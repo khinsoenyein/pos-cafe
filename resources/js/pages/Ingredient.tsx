@@ -41,6 +41,14 @@ export default function Products() {
     unit_id: null,
     remark: '',
   });
+  const resetForm = () => {
+    setForm({
+        name: '',
+        description: '',
+        unit_id: null,
+        remark: '',
+    });
+  };
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editDialog, setEditDialog] = useState(false);
@@ -48,7 +56,6 @@ export default function Products() {
   const [search, setSearch] = useState('');
 
   const [unitId, setUnitId] = useState<number | null>(null);
-  const [editingUnitName, setEditingUnitName] = useState<String | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target as HTMLInputElement;
@@ -58,17 +65,18 @@ export default function Products() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const data = new FormData();
-    data.append('name', form.name);
-    if (form.description) data.append('description', form.description);
-    if (form.remark) data.append('remark', form.remark);
-    if (form.unit_id) data.append('unit_id', form.unit_id.toString());
 
-    router.post('/ingredients', data, {
+    router.post('/ingredients',  {
+      name: form.name,
+      description: form.description,
+      remark: form.remark,
+      unit_id: unitId
+    }, {
       forceFormData: true,
       preserveScroll: true,
       onSuccess: () => {
         setForm({ name: '', description: '', unit_id: null, remark: '' });
+        setUnitId(null);
         setOpen(false);
         toast.success('Ingredient added successfully');
       },
@@ -80,24 +88,31 @@ export default function Products() {
     e.preventDefault();
     if (!editing) return;
     setIsSubmitting(true);
-    const data = new FormData();
-    data.append('name', form.name);
-    if (form.description) data.append('description', form.description);
-    if (form.remark) data.append('remark', form.remark);
-    if (form.unit_id) data.append('unit_id', form.unit_id.toString());
-    data.append('_method', 'PUT');
 
-    router.post(`/ingredients/${editing.id}`, data, {
+    router.post(`/ingredients/${editing.id}`, {
+      id: editing.id,
+      name: form.name,
+      description: form.description,
+      remark: form.remark,
+      unit_id: form.unit_id,
+      _method: 'PUT'
+    }, {
       forceFormData: true,
       preserveScroll: true,
       onSuccess: () => {
         setEditDialog(false);
         setEditing(null);
         setForm({ name: '', description: '', unit_id: null, remark: '' });
+        setUnitId(null);
         toast.success('Ingredient updated successfully');
       },
       onFinish: () => setIsSubmitting(false),
     });
+  };
+
+  // handle input changes
+  const updateField = (field: string, value: any) => {
+    setForm((s) => ({ ...s, [field]: value }));
   };
 
   const openEdit = (ingredient: Ingredient) => {
@@ -117,7 +132,7 @@ export default function Products() {
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Products" />
+      <Head title="Ingredient" />
       <div className="flex flex-col gap-4 p-4 overflow-x-auto">
         {/* <h1 className="text-2xl font-bold">Ingredient List</h1> */}
         <div>
@@ -133,7 +148,12 @@ export default function Products() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={open} onOpenChange={(isOpen) => {
+                setOpen(isOpen);
+                if (!isOpen) {
+                resetForm(); // cleanup when dialog closes
+                }
+            }}>
             <DialogTrigger asChild>
               <Button>Add Ingredient</Button>
             </DialogTrigger>
@@ -155,7 +175,7 @@ export default function Products() {
                   {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
                 </div>
                 <div>
-                  <Textarea 
+                  <Textarea
                     name="description"
                     value={form.description}
                     onChange={handleChange}
@@ -167,7 +187,7 @@ export default function Products() {
                 <div>
                     <Select onValueChange={(val) => setUnitId(Number(val))}>
                         <SelectTrigger className="border rounded p-2 w-full dark:bg-transparent">
-                            <SelectValue placeholder="Select Ingredient" />
+                            <SelectValue placeholder="Select unit" />
                         </SelectTrigger>
                         <SelectContent>
                             {units.map((unit) => (
@@ -180,7 +200,7 @@ export default function Products() {
                     {errors.ingredient_id && <p className="text-sm text-red-600 mt-1">{errors.ingredient_id}</p>}
                 </div>
                 <div>
-                  <Textarea 
+                  <Textarea
                     name="remark"
                     value={form.remark}
                     onChange={handleChange}
@@ -199,14 +219,19 @@ export default function Products() {
           </Dialog>
 
           {/* Edit Ingredient Dialog */}
-          <Dialog open={editDialog} onOpenChange={setEditDialog}>
+          <Dialog open={editDialog} onOpenChange={(isOpen) => {
+                setEditDialog(isOpen);
+                if (!isOpen) {
+                resetForm(); // cleanup when dialog closes
+                }
+            }}>
             <DialogContent className="sm:max-w-lg">
               <DialogHeader>
                 <DialogTitle>Edit Ingredient</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleEditSubmit} className="space-y-4" encType="multipart/form-data">
                 <div>
-                  <input
+                  <Input
                     type="text"
                     name="name"
                     value={form.name}
@@ -218,7 +243,26 @@ export default function Products() {
                   {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
                 </div>
                 <div>
-                  <textarea
+                    <Select
+                        value={form.unit_id ? String(form.unit_id) : ''}
+                        // onValueChange={(val) => setUnitId(Number(val))}>
+                        onValueChange={(v) => updateField('unit_id', v ? Number(v) : null)}
+                    >
+                        <SelectTrigger className="border rounded p-2 w-full dark:bg-transparent">
+                            <SelectValue placeholder="Select unit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {units.map((unit) => (
+                            <SelectItem key={unit.id} value={String(unit.id)}>
+                                {unit.name} ({unit.symbol})
+                            </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {errors.ingredient_id && <p className="text-sm text-red-600 mt-1">{errors.ingredient_id}</p>}
+                </div>
+                <div>
+                  <Textarea
                     name="description"
                     value={form.description}
                     onChange={handleChange}
@@ -228,7 +272,7 @@ export default function Products() {
                   {errors.description && <p className="text-sm text-red-600 mt-1">{errors.description}</p>}
                 </div>
                 <div>
-                  <textarea
+                  <Textarea
                     name="remark"
                     value={form.remark}
                     onChange={handleChange}
@@ -253,6 +297,7 @@ export default function Products() {
             <thead className="bg-gray-100 dark:bg-sidebar">
               <tr>
                 <th className="px-4 py-2 border-r">Name</th>
+                <th className="px-4 py-2 border-r">Base Unit</th>
                 <th className="px-4 py-2 border-r">Description</th>
                 <th className="px-4 py-2">Actions</th>
               </tr>
@@ -268,6 +313,7 @@ export default function Products() {
                 filteredProducts.map((ingredient) => (
                   <tr key={ingredient.id} className="border-t">
                     <td className="px-4 py-2 border-r">{ingredient.name}</td>
+                    <td className="px-4 py-2 border-r">{ingredient.unit.name} ({ingredient.unit.symbol})</td>
                     <td className="px-4 py-2 border-r">{ingredient.description}</td>
                     <td className="px-4 py-2">
                       <Button variant="outline" size="sm" onClick={() => openEdit(ingredient)}>

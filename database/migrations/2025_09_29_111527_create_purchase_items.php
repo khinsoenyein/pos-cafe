@@ -16,10 +16,10 @@ return new class extends Migration
             $table->foreignId('purchase_id')->constrained()->onDelete('cascade');
             $table->foreignId('ingredient_id')->constrained()->onDelete('cascade');
             $table->foreignId('unit_id')->constrained()->onDelete('cascade');
-            
+
             $table->decimal('qty', 12, 4);
             $table->decimal('unit_price', 12, 4);
-            $table->decimal('total', 14, 2); // quantity * unit_price
+            // $table->decimal('total', 14, 2); // quantity * unit_price
 
             $table->longText('remark')->nullable();
 
