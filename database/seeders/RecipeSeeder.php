@@ -29,6 +29,7 @@ class RecipeSeeder extends Seeder
                                 'shop_id' => $shop->id,
                                 'product_id' => $product->id,
                                 'ingredient_id' => $ingredient->id,
+                                'unit_id' => $ingredient->unit_id,
                             ],
                             [
                                 'quantity' => round(rand(2, max: 10)),

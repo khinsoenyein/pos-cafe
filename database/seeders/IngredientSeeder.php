@@ -14,10 +14,10 @@ class IngredientSeeder extends Seeder
     public function run(): void
     {
         $ingredients = [
-            ['name' => 'Coffee Bean 30g', 'description' => 'Coffee Bean 30g'],
-            ['name' => 'Milk 1 litre', 'description' => 'Milk 1 litre'],
-            ['name' => 'Sugar 100g', 'description' => 'Sugar 100g'],
-            ['name' => 'Ice 10 cubes', 'description' => 'Ice 10 cubes'],
+            ['name' => 'Coffee Bean', 'description' => 'Coffee Bean', 'unit_id' => 1 ],
+            ['name' => 'Milk', 'description' => 'Milk', 'unit_id' => 3],
+            ['name' => 'Sugar', 'description' => 'Sugar', 'unit_id' => 1],
+            ['name' => 'Ice cube', 'description' => 'Ice cube', 'unit_id' => 5],
         ];
 
         foreach ($ingredients as $ingredient) {

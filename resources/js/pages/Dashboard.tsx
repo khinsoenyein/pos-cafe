@@ -9,8 +9,8 @@ import { Head, usePage } from '@inertiajs/react';
 import DatePicker from 'react-datepicker';
 import { ChartAreaInteractive } from './Sales/Sales-Chart';
 import { ChartBarLabelCustom } from './Sales/Sales-BarChart';
-import { DataTable } from '@/components/data-table';
 import { columns } from '@/components/Sales/columns';
+import { DataTable } from '@/components/ui/data-table';
 // import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart } from 'recharts';
 
 export type DashboardProps = {

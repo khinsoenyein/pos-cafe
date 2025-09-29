@@ -259,15 +259,6 @@ export default function IngredientShopSetup() {
                                 </div>
 
                                 <div>
-                                    {/* <input
-                                        type="number"
-                                        name="quantity"
-                                        value={form.quantity}
-                                        onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-                                        placeholder="Quantity Required"
-                                        required
-                                        className="border rounded p-2 w-full max-w-sm"
-                                    /> */}
                                      <Input
                                         value={form.quantity}
                                         onChange={(e) => setForm({ ...form, quantity: e.target.value })}

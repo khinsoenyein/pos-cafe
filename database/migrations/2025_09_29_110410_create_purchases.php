@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventories', function (Blueprint $table) {
+        Schema::create('purchases', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('shop_id')->constrained()->onDelete('cascade');
-            $table->foreignId('ingredient_id')->constrained()->onDelete('cascade');
-            $table->foreignId('unit_id')->constrained()->onDelete('cascade');
+            $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+            $table->foreignId('shop_id')->constrained()->onDelete('cascade'); // which shop receives the stock
+            
+            $table->date('purchase_date')->default(now());
+            $table->decimal('total_amount', 14, 2)->default(0);
 
-            $table->integer('change');
-            $table->string('reference')->nullable();
-            $table->string('reason')->nullable();
-
+            $table->string('status')->default('pending'); // pending, received, cancelled
+            
             $table->longText('remark')->nullable();
 
             $table->boolean('isdeleted')->default(false);
@@ -38,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inventories');
+        Schema::dropIfExists('purchases');
     }
 };

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, router } from '@inertiajs/react';
-import { Ingredient, type BreadcrumbItem } from '@/types';
+import { Ingredient, Unit, type BreadcrumbItem } from '@/types';
 import {
   Dialog,
   DialogTrigger,
@@ -12,10 +12,13 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { Select, SelectContent, SelectGroup, SelectLabel, SelectValue, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 type PageProps = {
   ingredients: Ingredient[];
+  units: Unit[];
   errors: Record<string, string>;
 };
 
@@ -25,11 +28,17 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Products() {
-  const { ingredients, errors } = usePage<PageProps>().props;
+  const { ingredients, units, errors } = usePage<PageProps>().props;
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    name: string;
+    description: string;
+    unit_id: number | null;
+    remark: string;
+  }>({
     name: '',
     description: '',
+    unit_id: null,
     remark: '',
   });
   const [open, setOpen] = useState(false);
@@ -37,6 +46,9 @@ export default function Products() {
   const [editDialog, setEditDialog] = useState(false);
   const [editing, setEditing] = useState<Ingredient | null>(null);
   const [search, setSearch] = useState('');
+
+  const [unitId, setUnitId] = useState<number | null>(null);
+  const [editingUnitName, setEditingUnitName] = useState<String | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target as HTMLInputElement;
@@ -50,12 +62,13 @@ export default function Products() {
     data.append('name', form.name);
     if (form.description) data.append('description', form.description);
     if (form.remark) data.append('remark', form.remark);
+    if (form.unit_id) data.append('unit_id', form.unit_id.toString());
 
     router.post('/ingredients', data, {
       forceFormData: true,
       preserveScroll: true,
       onSuccess: () => {
-        setForm({ name: '', description: '', remark: '' });
+        setForm({ name: '', description: '', unit_id: null, remark: '' });
         setOpen(false);
         toast.success('Ingredient added successfully');
       },
@@ -71,6 +84,7 @@ export default function Products() {
     data.append('name', form.name);
     if (form.description) data.append('description', form.description);
     if (form.remark) data.append('remark', form.remark);
+    if (form.unit_id) data.append('unit_id', form.unit_id.toString());
     data.append('_method', 'PUT');
 
     router.post(`/ingredients/${editing.id}`, data, {
@@ -79,7 +93,7 @@ export default function Products() {
       onSuccess: () => {
         setEditDialog(false);
         setEditing(null);
-        setForm({ name: '', description: '', remark: '' });
+        setForm({ name: '', description: '', unit_id: null, remark: '' });
         toast.success('Ingredient updated successfully');
       },
       onFinish: () => setIsSubmitting(false),
@@ -91,6 +105,7 @@ export default function Products() {
     setForm({
       name: ingredient.name || '',
       description: ingredient.description || '',
+      unit_id: ingredient.unit_id || null,
       remark: ingredient.remark || '',
     });
     setEditDialog(true);
@@ -128,7 +143,7 @@ export default function Products() {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
                 <div>
-                  <input
+                  <Input
                     type="text"
                     name="name"
                     value={form.name}
@@ -140,7 +155,7 @@ export default function Products() {
                   {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
                 </div>
                 <div>
-                  <textarea
+                  <Textarea 
                     name="description"
                     value={form.description}
                     onChange={handleChange}
@@ -150,7 +165,22 @@ export default function Products() {
                   {errors.description && <p className="text-sm text-red-600 mt-1">{errors.description}</p>}
                 </div>
                 <div>
-                  <textarea
+                    <Select onValueChange={(val) => setUnitId(Number(val))}>
+                        <SelectTrigger className="border rounded p-2 w-full dark:bg-transparent">
+                            <SelectValue placeholder="Select Ingredient" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {units.map((unit) => (
+                            <SelectItem key={unit.id} value={String(unit.id)}>
+                                {unit.name} ({unit.symbol})
+                            </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {errors.ingredient_id && <p className="text-sm text-red-600 mt-1">{errors.ingredient_id}</p>}
+                </div>
+                <div>
+                  <Textarea 
                     name="remark"
                     value={form.remark}
                     onChange={handleChange}

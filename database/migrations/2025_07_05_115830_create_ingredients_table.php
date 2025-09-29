@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
+            $table->foreignId('unit_id')->constrained()->onDelete('cascade');//base_unit
 
             $table->longText('remark')->nullable();
 

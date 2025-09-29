@@ -44,6 +44,14 @@ export interface User {
     [key: string]: unknown; // This allows for additional properties...
 }
 
+export type Unit = {
+  id: number;
+  name: string;
+  symbol: string;
+  base_unit: string;
+  conversion_rate: number;
+};
+
 export type Product = {
   id: number;
   name: string;
@@ -104,6 +112,8 @@ export type Ingredient = {
   id: number;
   name: string;
   description?: string;
+  unit_id: number;
+  unit: Unit;
   remark?: string;
   pivot: {
     stock: number;
