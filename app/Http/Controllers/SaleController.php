@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Shop;
+use App\Models\Unit;
 use App\Models\UserShop;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -90,7 +91,7 @@ class SaleController extends Controller
             $shop = Shop::findOrFail($validated['shop_id']);
 
             $voucher_number = CodeGenerator::generateID(Sale::class, $validated['shop_id'], 'shop_id', 'voucher_number', 'S'.$shop->code, 4);
-            
+
             // return response()->json([
             //     'voucher_number' => $voucher_number
             // ]);
@@ -119,53 +120,37 @@ class SaleController extends Controller
                                 ->where('product_id', $item['product_id'])
                                 ->where('isdeleted', false)
                                 ->where('isactive', true)
+                                ->with('ingredient')
                                 ->get();
 
                 foreach($recipes as $recipe){
-                    $qty = $recipe->quantity * $item['qty'];
-                    
-                    // IngredientShop::where('shop_id', $recipe->shop_id)
-                    //         ->where('ingredient_id', $recipe->ingredient_id)
-                    //         ->decrement('stock', $qty);
+                    if (! $recipe->ingredient) {
+                        // ingredient missing — skip or throw depending on your policy
+                        throw new \Exception("Ingredient (id {$recipe->ingredient_id}) not found for recipe.");
+                    }
 
-                    // IngredientShop::updateOrCreate([
-                    //     'shop_id' => $recipe->shop_id,
-                    //     'ingredient_id' => $recipe->ingredient_id,
-                    // ],[
-                    //     'change' => $qty * -1,//it is for sales so it should deduct.
-                    //     'reason' => $voucher_number,
-                    //     'created_user' => Auth::user()->id
-                    // ]);
+                    $ingredientUnitId = $recipe->ingredient->unit_id;
+
+                    // check unit exists on ingredient
+                    if (is_null($ingredientUnitId)) {
+                        throw new \Exception("Ingredient (id {$recipe->ingredient_id}) has no unit_id defined.");
+                    }
+
+                    // convert recipe quantity to base unit (ingredient unit)
+                    $base_qty = Unit::convert((float) $recipe->quantity, (int) $recipe->unit_id, (int) $ingredientUnitId);
+                    $qty = $base_qty * (float) $item['qty'];
 
                     Inventory::create([
                         'shop_id' => $recipe->shop_id,
                         'ingredient_id' => $recipe->ingredient_id,
+                        'unit_id' => $ingredientUnitId,
                         'change' => $qty * -1,
-                        'reason' => $voucher_number,
-                        'remark' => 'Sales',
+                        'reference' => $voucher_number,
+                        'reason' => 'Sales',
+                        'remark' => '',
                         'created_user' => Auth::user()->id
                     ]);
                 }
-
-                // Update inventory - decrement stock in product_shop
-                // $affected = DB::table('product_shop')
-                //     ->where('product_id', $item['product_id'])
-                //     ->where('shop_id', $shop->id)
-                //     ->where('stock', '>=', $item['qty'])  // prevent over-selling
-                //     ->decrement('stock', $item['qty']);
-
-                    
-                // $affected = DB::table('ingredient_product')
-                //     ->where('product_id', $item['product_id'])
-                //     ->where('shop_id', $shop->id)
-                //     ->where('shop_id', $shop->id)
-                //     ->where('stock', '>=', $item['qty'])  // prevent over-selling
-                //     ->decrement('stock', $item['qty']);
-
-                // if ($affected === 0) {
-                //     // Not enough stock
-                //     throw new \Exception("Not enough stock for product ID {$item['product_id']} in shop {$shop->name}");
-                // }
             }
 
             DB::commit();

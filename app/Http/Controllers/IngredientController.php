@@ -14,7 +14,7 @@ class IngredientController extends Controller
     {
         // $ingredients = Ingredient::all();
         return Inertia::render('Ingredient', [
-            'ingredients' => Ingredient::all(),
+            'ingredients' => Ingredient::with('unit')->get(),
             'units' => Unit::all(),
         ]);
     }
@@ -24,12 +24,14 @@ class IngredientController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:ingredients,name',
             'description' => 'required|string',
+            'unit_id' => 'required|exists:units,id',
             'remark' => 'nullable|string',
         ]);
 
         Ingredient::create([
             'name' => $validated['name'],
             'description' => $validated['description'],
+            'unit_id' => $validated['unit_id'],
             'remark' => $validated['remark'] ?? '',
             'created_user' => Auth::user()->id
         ]);
@@ -42,6 +44,7 @@ class IngredientController extends Controller
         $validated = $request->validate([
             'name' => 'nullable|string|max:100|unique:ingredients,name,' . $id,
             'description' => 'required|string',
+            'unit_id' => 'required|exists:units,id',
             'remark' => 'nullable|string',
         ]);
 
@@ -50,6 +53,7 @@ class IngredientController extends Controller
         $Ingredient->update([
             'name' => $validated['name'],
             'description' => $validated['description'],
+            'unit_id' => $validated['unit_id'],
             'remark' => $validated['remark'] ?? '',
             'modified_user' => Auth::user()->id
         ]);

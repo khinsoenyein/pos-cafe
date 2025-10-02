@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->integer('qty');
             $table->decimal('price', 10, 2); // price at the time of sale
-            $table->decimal('total', 14, 2); // qty * price
+            // $table->decimal('total', 14, 2); // qty * price
 
             $table->longText('remark')->nullable();
 

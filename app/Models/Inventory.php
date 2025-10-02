@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Inventory extends Model
 {
-    protected $fillable = ['shop_id', 'ingredient_id', 'change', 'reason', 'remark', 'created_user', 'modified_user'];
+    protected $fillable = ['shop_id', 'ingredient_id', 'unit_id', 'change', 'reference', 'reason', 'remark', 'created_user', 'modified_user'];
 
     public function shop()
     {
@@ -16,6 +16,11 @@ class Inventory extends Model
     public function ingredient()
     {
         return $this->belongsTo(Ingredient::class, 'ingredient_id', 'id');
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id', 'id');
     }
 
     public function createdBy()

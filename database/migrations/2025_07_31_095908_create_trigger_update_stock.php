@@ -70,8 +70,8 @@ return new class extends Migration
                 FROM inventories
                 WHERE shop_id = NEW.shop_id AND ingredient_id = NEW.ingredient_id;
 
-                INSERT INTO ingredient_shop (shop_id, ingredient_id, stock, created_at, created_user, updated_at)
-                VALUES (NEW.shop_id, NEW.ingredient_id, total_change, NOW(), NEW.created_user, NOW())
+                INSERT INTO ingredient_shop (shop_id, ingredient_id, unit_id, stock, created_at, created_user, updated_at)
+                VALUES (NEW.shop_id, NEW.ingredient_id, NEW.unit_id, total_change, NOW(), NEW.created_user, NOW())
                 ON DUPLICATE KEY UPDATE
                     stock = VALUES(stock),
                     modified_user = NEW.created_user,
@@ -106,7 +106,7 @@ return new class extends Migration
         // Drop the triggers
         // DB::unprepared('DROP TRIGGER IF EXISTS update_stock_after_sale_insert');
         // DB::unprepared('DROP TRIGGER IF EXISTS update_stock_after_sale_update');
-        
+
         DB::unprepared('DROP TRIGGER IF EXISTS update_stock_after_inventory_insert');
         // DB::unprepared('DROP TRIGGER IF EXISTS update_stock_after_inventory_update');
     }

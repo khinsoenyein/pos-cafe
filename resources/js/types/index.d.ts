@@ -188,6 +188,7 @@ export type Inventory = {
     id: number,
     name: string
   };
+  unit: Unit;
   created_by: {
     id: number,
     name: string
