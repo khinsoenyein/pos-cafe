@@ -7,6 +7,7 @@ use App\Models\IngredientProduct;
 use App\Models\IngredientShop;
 use App\Models\Product;
 use App\Models\Shop;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +32,7 @@ class RecipeController extends Controller
         //     ->where('product_id','=', $selectedProductId)->get()
         // ];
 
-        $recipes = IngredientProduct::with(['shop', 'product', 'ingredient'])->get();
+        $recipes = IngredientProduct::with(['shop', 'product', 'ingredient', 'unit'])->get();
 
         // $currentIngredients = IngredientProduct::with(['shop', 'product', 'ingredient'])
         //                     ->where('shop_id',$selectedShopId)
@@ -41,6 +42,7 @@ class RecipeController extends Controller
             'shops' => Shop::all(['id', 'name']),
             'products' => Product::all(['id', 'name']),
             'ingredients' => Ingredient::all(['id', 'name']),
+            'units' => Unit::all(['id', 'name']),
             // 'availableIngredients' => $availableIngredients,
             'currentIngredients' => null,
             'recipes' => $recipes,
@@ -54,6 +56,7 @@ class RecipeController extends Controller
             'shop_id' => 'required|exists:shops,id',
             'product_id' => 'required|exists:products,id',
             'ingredient_id' => 'required|exists:ingredients,id',
+            'unit_id' => 'required|exists:units,id',
             'quantity' => 'required|numeric|min:0',
         ]);
 
@@ -66,6 +69,7 @@ class RecipeController extends Controller
                 ],
                 [
                     'quantity' => $validated['quantity'],
+                    'unit_id' => $validated['unit_id'],
                     'created_user' => Auth::user()->id
                 ]
             );
@@ -84,6 +88,7 @@ class RecipeController extends Controller
             'shop_id' => 'required|exists:shops,id',
             'product_id' => 'required|exists:products,id',
             'ingredient_id' => 'required|exists:ingredients,id',
+            'unit_id' => 'required|exists:units,id',
             'quantity' => 'required|numeric|min:0',
         ]);
 
@@ -96,6 +101,7 @@ class RecipeController extends Controller
                 ],
                 [
                     'quantity' => $validated['quantity'],
+                    'unit_id' => $validated['unit_id'],
                     'modified_user' => Auth::user()->id
                 ]
             );
@@ -151,7 +157,7 @@ class RecipeController extends Controller
         $selectedShopId = $request->input('shop_id');
         $selectedProductId = $request->input('product_id');
 
-        $currentIngredients = IngredientProduct::with(['shop', 'product', 'ingredient'])
+        $currentIngredients = IngredientProduct::with(['shop', 'product', 'ingredient', 'unit'])
                             ->where('shop_id',$selectedShopId)
                             ->where('product_id',$selectedProductId)->get();
 

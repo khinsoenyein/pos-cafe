@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('purchase_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('purchase_id')->constrained()->onDelete('cascade');
+            $table->foreignId('shop_id')->constrained()->onDelete('cascade');
             $table->foreignId('ingredient_id')->constrained()->onDelete('cascade');
             $table->foreignId('unit_id')->constrained()->onDelete('cascade');
 
             $table->decimal('qty', 12, 4);
-            $table->decimal('unit_price', 12, 4);
-            // $table->decimal('total', 14, 2); // quantity * unit_price
+            $table->decimal('price', 12, 4);
 
             $table->longText('remark')->nullable();
 

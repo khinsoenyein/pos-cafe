@@ -14,6 +14,7 @@ class ShopSeeder extends Seeder
     public function run(): void
     {
         $shops = [
+            ['name' => 'Main Office', 'code' => 'MNO'],
             ['name' => 'Downtown Store', 'code' => 'DTS'],
             ['name' => 'Uptown Branch', 'code' => 'UTB'],
             ['name' => 'Mall K', 'code' => 'MLK'],

@@ -129,7 +129,7 @@ class SaleController extends Controller
                         throw new \Exception("Ingredient (id {$recipe->ingredient_id}) not found for recipe.");
                     }
 
-                    $ingredientUnitId = $recipe->ingredient->unit_id;
+                    $ingredientUnitId = $recipe->ingredient->unit_id;//base_unit
 
                     // check unit exists on ingredient
                     if (is_null($ingredientUnitId)) {

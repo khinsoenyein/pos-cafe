@@ -105,10 +105,10 @@ export default function Inventories() {
         {/* <h1 className="text-2xl font-bold">Ingredient List</h1> */}
         <div>
           <h1 className="text-xl font-bold">Inventory</h1>
-          <span className="text-sm text-gray-500">Manage inventory</span>
+          <span className="text-sm text-gray-500">Inventory Transactions</span>
         </div>
 
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button>Add</Button>
@@ -188,7 +188,7 @@ export default function Inventories() {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
+        </div> */}
 
         {/* Ingredient Table */}
         <DataTable  columns={columns} data={inventories}/>

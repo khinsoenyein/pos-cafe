@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { formatNumber } from '@/lib/utils';
 import { toast } from 'sonner';
 
-import type { Shop, Ingredient, IngredientProduct, IngredientWithPivot, Product } from '@/types';
+import type { Shop, Ingredient, IngredientProduct, IngredientWithPivot, Product, Unit } from '@/types';
 import { Select, SelectContent, SelectGroup, SelectLabel, SelectValue, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { useRecipeFetcher } from '@/hooks/fetch-recipe';
@@ -23,6 +23,7 @@ export type IngredientShopSetupPageProps = {
     shops: Shop[];
     products: Product[];
     ingredients: Ingredient[];
+    units: Unit[];
     // availableIngredients: Ingredient[];
     // recipes: IngredientProduct[] | null; 
     errors: Record<string, string | string[]>;
@@ -34,7 +35,7 @@ const breadcrumbs = [
 ];
 
 export default function IngredientShopSetup() {
-    const { shops, products, ingredients, errors } = usePage<IngredientShopSetupPageProps>().props;
+    const { shops, products, ingredients, units, errors } = usePage<IngredientShopSetupPageProps>().props;
 
     const {
         ingredientProduct,
@@ -46,6 +47,7 @@ export default function IngredientShopSetup() {
     const [shopId, setShopId] = useState<number | null>(shops[0]?.id || null);
     const [productId, setProductId] = useState<number | null>(products[0]?.id || null);
     const [ingredientId, setIngredientId] = useState<number | null>(null);
+    const [unitId, setUnitId] = useState<number | null>(null);
     const [editingIngredientName, setEditingIngredientName] = useState<String | null>(null);
 
     // const [currentIngredients, setCurrentIngredients] = useState<IngredientProduct[]>([]);
@@ -91,6 +93,11 @@ export default function IngredientShopSetup() {
             return;
         }
 
+        if (!unitId) {
+            toast.error('Please select unit.');
+            return;
+        }
+
         setIsSubmitting(true);
 
         router.post(
@@ -99,6 +106,7 @@ export default function IngredientShopSetup() {
                 shop_id: shopId,
                 product_id: productId,
                 ingredient_id: ingredientId,
+                unit_id: unitId,
                 quantity: form.quantity,
             },
             {
@@ -107,7 +115,7 @@ export default function IngredientShopSetup() {
                     setOpen(false);
                     setForm({ quantity: '' });
                     setIngredientId(null);
-                    
+                    setUnitId(null);
                     fetchRecipe(shopId!, productId!)
                 },
                 onError: (err) => {
@@ -126,16 +134,16 @@ export default function IngredientShopSetup() {
         setIsSubmitting(true);
         
         if (!shopId) {
-            toast.error('Please select a shop first.');
+            toast.error('Please select a shop.');
             return;
         }
         if (!productId) {
-            toast.error('Please select a product first.');
+            toast.error('Please select a product.');
             return;
         }
 
         if (!ingredientId) {
-            toast.error('Please select a ingredient first.');
+            toast.error('Please select a ingredient.');
             return;
         }
         if (form.quantity == '') {
@@ -143,10 +151,16 @@ export default function IngredientShopSetup() {
             return;
         }
 
+        if (!unitId) {
+            toast.error('Please select unit.');
+            return;
+        }
+
         router.put(`/recipe/${editing.id}`, {
             shop_id: shopId,
             product_id: productId,
             ingredient_id: ingredientId,
+            unit_id: unitId,
             quantity: form.quantity,
         }, {
             onSuccess: () => {
@@ -155,6 +169,7 @@ export default function IngredientShopSetup() {
                 setEditingIngredientName(null);
                 setForm({ quantity: '' });
                 setIngredientId(null);
+                setUnitId(null);
                 fetchRecipe(shopId!, productId!)
                 toast.success('Recipe updated');
             },
@@ -268,6 +283,22 @@ export default function IngredientShopSetup() {
                                     {errors.quantity && <p className="text-sm text-red-600 mt-1">{errors.quantity}</p>}
                                 </div>
 
+                                <div>
+                                    <Select onValueChange={(val) => setUnitId(Number(val))}>
+                                        <SelectTrigger className="border rounded p-2 w-full dark:bg-transparent">
+                                            <SelectValue placeholder="Select Unit" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {units.map((unit) => (
+                                            <SelectItem key={unit.id} value={String(unit.id)}>
+                                                {unit.name}
+                                            </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.unit_id && <p className="text-sm text-red-600 mt-1">{errors.unit_id}</p>}
+                                </div>
+
                                 <DialogFooter>
                                     <Button type="submit" disabled={isSubmitting}>
                                         {isSubmitting ? 'Saving...' : 'Save'}
@@ -294,7 +325,7 @@ export default function IngredientShopSetup() {
                                 </div>
 
                                 <div>
-                                    <input
+                                    <Input
                                         type="number"
                                         name="quantity"
                                         value={form.quantity}
@@ -302,7 +333,7 @@ export default function IngredientShopSetup() {
                                         placeholder="Quantity"
                                         required
                                         className="border rounded p-2 w-full"
-                                    />
+                                        />
                                     {errors.quantity && <p className="text-sm text-red-600 mt-1">{errors.quantity}</p>}
                                 </div>
 
@@ -323,6 +354,7 @@ export default function IngredientShopSetup() {
                             <tr>
                                 <th className="px-4 py-2 border-r">Ingredient</th>
                                 <th className="px-4 py-2 border-r">Quantity</th>
+                                <th className="px-4 py-2 border-r">Unit</th>
                                 <th className="px-4 py-2 border-r">Status</th>
                                 <th className="px-4 py-2">Actions</th>
                             </tr>
@@ -339,6 +371,7 @@ export default function IngredientShopSetup() {
                                     <tr key={recipe.id} className="border-t">
                                         <td className="px-4 py-2 border-r">{recipe.ingredient.name}</td>
                                         <td className="px-4 py-2 border-r text-right">{formatNumber(recipe.quantity * 1)}</td>
+                                        <td className="px-4 py-2 border-r">{recipe.unit.name} ({recipe.unit.symbol})</td>
                                         {/* <td className="px-4 py-2 border-r text-right">{ingredient.pivot.quantity}</td> */}
                                         <td className="px-4 py-2 border-r text-center">
                                             {/* <span className={`px-2 py-1 rounded text-white text-xs font-semibold ${ingredient.pivot.isactive == true ? 'bg-green-500' : 'bg-red-500'}`}>

@@ -6,6 +6,7 @@ use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ShopController;
@@ -50,13 +51,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/recipe/get-ingredient', [RecipeController::class, 'getIngredient'])->name('recipe.get.ingredient');
     Route::get('/recipe/status', [RecipeController::class, 'status'])->name(name: 'recipe.status');
 
-    Route::get('/inventory-adjustment', [InventoryController::class, 'index'])->name('inventory.index');
-    Route::post('/inventory-adjustment', [InventoryController::class, 'store'])->name('inventory.store');
+    Route::get('/inventory-transaction', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::post('/inventory-transaction', [InventoryController::class, 'store'])->name('inventory.store');
     Route::get('/inventory-balance', [InventoryController::class, 'balance'])->name('inventory.balance');
 
     Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
     Route::post('/sales/store', [SaleController::class, 'store'])->name('sales.store');
     Route::post('/sales/list', [SaleController::class, 'list'])->name('sales.list');
+
+    Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
+    Route::post('/purchases/store', [PurchaseController::class, 'store'])->name('purchases.store');
+    Route::post('/purchases/list', [PurchaseController::class, 'list'])->name('purchases.list');
 
 
     Route::get('/user/shop', [UserController::class, 'shop'])->name('user.shop');

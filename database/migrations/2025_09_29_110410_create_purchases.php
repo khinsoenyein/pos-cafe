@@ -16,8 +16,10 @@ return new class extends Migration
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->foreignId('shop_id')->constrained()->onDelete('cascade'); // which shop receives the stock
             
+            $table->string('voucher_number')->unique();
+            
             $table->date('purchase_date')->default(now());
-            $table->decimal('total_amount', 14, 2)->default(0);
+            $table->decimal('total', 14, 2)->default(0);
 
             $table->string('status')->default('pending'); // pending, received, cancelled
             

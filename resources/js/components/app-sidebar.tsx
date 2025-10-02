@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, CircleDollarSign, FileBox, FileChartPie, FileText, Folder, LayoutGrid, LayoutList, ListCheck, LucideFileText, Package, PackageCheck, PackageOpen, ShoppingBasket, Store } from 'lucide-react';
+import { BookOpen, CircleDollarSign, FileBox, FileChartPie, FileText, Folder, FolderClosed, LayoutGrid, LayoutList, Package, PackageOpen, ShoppingBag, ShoppingBasket, Store } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -20,6 +20,19 @@ const posNavItems: NavItem[] = [
         title: 'POS',
         href: '/sales/create',
         icon: ShoppingBasket,
+    },
+];
+
+const purchaseNavItems: NavItem[] = [
+    {
+        title: 'Create',
+        href: '/purchases/create',
+        icon: ShoppingBag,
+    },
+    {
+        title: 'List',
+        href: '/purchases/list',
+        icon: FolderClosed,
     },
 ];
 
@@ -56,8 +69,8 @@ const recipeNavItems: NavItem[] = [
 
 const inventoryNavItems: NavItem[] = [
     {
-        title: 'Inventory Adjustment',
-        href: '/inventory-adjustment',
+        title: 'Inventory Transaction',
+        href: '/inventory-transaction',
         icon: PackageOpen,
     },
     {
@@ -114,6 +127,7 @@ export function AppSidebar({ user }: UserMenuContentProps) {
                 <SidebarContent>
                     <NavMain items={mainNavItems} title='' />
                     <NavMain items={posNavItems} title='POS' />
+                    <NavMain items={purchaseNavItems} title='Purchase' />
                     <NavMain items={masterNavItems} title='Master' />
                     <NavMain items={recipeNavItems} title='Recipe' />
                     <NavMain items={inventoryNavItems} title='Inventory' />

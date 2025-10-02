@@ -100,6 +100,15 @@ export type Shop = {
   products: Product[];
 };
 
+export type Supplier = {
+  id: number;
+  name: string;
+  contact_name: string;
+  phone?: string;
+  email?: string;
+  remark?: string;
+};
+
 export type ShopWithProducts = Shop & {
   products: ProductWithPivot[];
 };
@@ -166,6 +175,7 @@ export type IngredientProduct = {
   shop: Shop;
   product: Product;
   ingredient: Ingredient;
+  unit: Unit;
   created_by: {
     id: number,
     name: string
