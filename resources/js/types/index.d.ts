@@ -238,3 +238,13 @@ export type Sale = {
   };
   created_at: string
 };
+
+export type PurchaseLineItem = {
+    tempId: string; // local key for mapping
+    ingredient_id: number | null;
+    unit_id: number | null;
+    quantity: number; // keep as string for input
+    unit_price: string; // string for input like "1.50"
+    line_total: number;
+    remark?: string;
+};

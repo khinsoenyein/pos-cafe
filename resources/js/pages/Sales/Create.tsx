@@ -11,10 +11,13 @@ import ReceiptModal from '@/components/Sales/ReceiptModal';
 import type { Product, Shop, SaleItem } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import axios from 'axios';
 
 type PageProps = {
     shops: Shop[];
     errors: Record<string, string>;
+    flash: { success: string, voucher_number: string };
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -23,7 +26,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Sales() {
-    const { shops, errors } = usePage<PageProps>().props;
+    const { shops, errors, flash } = usePage<PageProps>().props;
 
     // console.log(shops);
 
@@ -36,7 +39,9 @@ export default function Sales() {
 
     const [items, setItems] = useState<SaleItem[]>([]);
     const [cash, setCash] = useState<number>(0);
+    const [voucherNumber, setVoucherNumber] = useState<string | null>(null);
     const [showReceipt, setShowReceipt] = useState<boolean>(false);
+    const [showConfirm, setShowConfirm] = useState<boolean>(false);
     const [search, setSearch] = useState<string>('');
 
     // Function to handle shop change and trigger Inertia visit
@@ -94,26 +99,38 @@ export default function Sales() {
     const grandTotal = items.reduce((sum, item) => sum + subTotal(item), 0);
     const change = cash - grandTotal;
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        router.post(
-            '/sales/store',
-            {
+    const handleSubmit = async () => {
+        try {
+            const payload = {
                 shop_id: shopId,
                 items,
-                total: grandTotal
-            },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast.success('Sales created successfully');
-                    setShowReceipt(true);
-                    // setItems([]);
-                    // setCash(0);
-                }
+                total: grandTotal,
+            };
+
+            const res = await axios.post("/sales/store", payload, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest", // ensures Laravel detects XHR
+                },
+            });
+
+            const voucher = res.data?.voucher_number;
+            if (voucher) {
+                setVoucherNumber(String(voucher));
+                setShowReceipt(true);
             }
-        );
+
+            toast.success("Sale created successfully");
+
+        } catch (err: any) {
+            console.error("Submit sale error", err);
+            toast.error(err?.response?.data?.message ?? "Failed to create sale");
+        }
+    };
+
+    // Called when user confirms in ConfirmDialog
+    const handleConfirm = () => {
+        setShowConfirm(false);
+        handleSubmit();
     };
 
     const filteredProducts = currentShop?.products.filter(p =>
@@ -124,6 +141,7 @@ export default function Sales() {
         setShowReceipt(false);
         setItems([]);
         setCash(0);
+        setVoucherNumber(null);
     };
 
     return (
@@ -134,16 +152,16 @@ export default function Sales() {
                 <div className="flex-1">
                     <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
                         {/* Shop Selector */}
-                        {shops.length > 0 && ( 
+                        {shops.length > 0 && (
                             <Select onValueChange={handleShopChange} value={shopId?.toString()}>
                                 <SelectTrigger className="border rounded p-2 w-full max-w-sm dark:bg-transparent">
                                     <SelectValue placeholder="Select Shop" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {shops.map((shop) => (
-                                    <SelectItem key={shop.id} value={String(shop.id)}>
-                                        {shop.name}
-                                    </SelectItem>
+                                        <SelectItem key={shop.id} value={String(shop.id)}>
+                                            {shop.name}
+                                        </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -175,7 +193,7 @@ export default function Sales() {
                     cash={cash}
                     setCash={setCash}
                     change={change}
-                    onPay={handleSubmit}
+                    onPay={() => setShowConfirm(true)}
                 />
 
                 {/* Receipt */}
@@ -185,6 +203,17 @@ export default function Sales() {
                     cart={items}
                     total={grandTotal}
                     cash={cash}
+                    voucherNumber={voucherNumber}
+                />
+
+                {/* ConfirmDialog */}
+                <ConfirmDialog
+                    open={showConfirm}
+                    title="Complete Sale"
+                    description={`Are you sure you want to complete the sale? Total: ${grandTotal.toLocaleString()}`}
+                    confirmLabel="Save"
+                    cancelLabel="Cancel"
+                    onConfirm={handleConfirm}
                 />
             </div>
         </AppLayout>

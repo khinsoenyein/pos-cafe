@@ -51,7 +51,7 @@ export const columns: ColumnDef<Sale>[] = [
             )
         },
         cell: ({ row }) => {
-            const formatted = formatNumber(row.getValue("total"))
+            const formatted = formatNumber(parseFloat(row.getValue("total"))*1)
             return <div className="text-center">{formatted}</div>
         },
         filterFn: 'inNumberRange',

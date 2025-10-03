@@ -12,4 +12,19 @@ class Sale extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
+   
+    public function shop()
+    {
+        return $this->belongsTo(Shop::class, 'shop_id', 'id');
+    }    
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_user', 'id');
+    }
+
+    public function modifiedBy()
+    {
+        return $this->belongsTo(User::class, 'modified_user', 'id');
+    }
 }

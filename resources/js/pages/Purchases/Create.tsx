@@ -15,22 +15,15 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { BreadcrumbItem, Ingredient, Shop, Supplier, Unit } from '@/types';
+import { BreadcrumbItem, Ingredient, PurchaseLineItem, Shop, Supplier, Unit } from '@/types';
 import AppLayout from '@/layouts/app-layout';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { ChevronDownIcon } from 'lucide-react';
+import { ChevronDownIcon, CircleX } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-
-type LineItem = {
-    tempId: string; // local key for mapping
-    ingredient_id: number | null;
-    unit_id: number | null;
-    quantity: string; // keep as string for input
-    unit_price: string; // string for input like "1.50"
-    line_total: number;
-    remark?: string;
-};
+import { formatNumber } from '@/lib/utils';
+import { datetime } from 'node_modules/zod/v4/core/regexes.cjs';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 type Props = {
     suppliers: Supplier[];
@@ -46,9 +39,6 @@ const toNumber = (v: string | number | null | undefined) => {
     return Number.isFinite(n) ? n : 0;
 };
 
-const formatCurrency = (v: number) =>
-    v % 1 === 0 ? v.toLocaleString() : v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
 // ---- Component
 export default function PurchaseCreate(props: Props) {
     const { suppliers, ingredients, units, shops = [], errors: serverErrors = {} } = props;
@@ -56,20 +46,20 @@ export default function PurchaseCreate(props: Props) {
     // Header fields
     const [voucher, setVoucher] = useState("");
     const [open, setOpen] = React.useState(false);
-    const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(undefined);
+    const [purchaseDate, setPurchaseDate] = useState<Date>(new Date());
     const [supplierId, setSupplierId] = useState<number | null>(suppliers.length ? suppliers[0].id : null);
     const [shopId, setShopId] = useState<number | null>((shops[0]?.id ?? null));
     const [remark, setRemark] = useState('');
-    const [otherCostLabel, setOtherCostLabel] = useState('Other Cost');
+    // const [otherCostLabel, setOtherCostLabel] = useState('Other Cost');
     const [otherCostAmount, setOtherCostAmount] = useState<string>('0');
 
     // Line items
-    const [items, setItems] = useState<LineItem[]>([
+    const [items, setItems] = useState<PurchaseLineItem[]>([
         {
             tempId: cryptoRandomId(),
             ingredient_id: null,
             unit_id: null,
-            quantity: '',
+            quantity: 0,
             unit_price: '',
             line_total: 0,
         },
@@ -90,6 +80,7 @@ export default function PurchaseCreate(props: Props) {
     }, [/* items values already trigger rerender, but we will trigger recalc on change by handlers */]);
 
     // computed totals
+    const qtyTotal = useMemo(() => items.reduce((s, it) => s + (it.quantity || 0), 0), [items]);
     const itemsTotal = useMemo(() => items.reduce((s, it) => s + (it.line_total || 0), 0), [items]);
     const otherCost = toNumber(otherCostAmount);
     const grandTotal = Number(itemsTotal + otherCost);
@@ -102,7 +93,7 @@ export default function PurchaseCreate(props: Props) {
                 tempId: cryptoRandomId(),
                 ingredient_id: null,
                 unit_id: null,
-                quantity: '',
+                quantity: 0,
                 unit_price: '',
                 line_total: 0,
             },
@@ -111,7 +102,7 @@ export default function PurchaseCreate(props: Props) {
     function removeItem(tempId: string) {
         setItems((s) => s.filter((it) => it.tempId !== tempId));
     }
-    function updateItem(tempId: string, patch: Partial<LineItem>) {
+    function updateItem(tempId: string, patch: Partial<PurchaseLineItem>) {
         setItems((s) =>
             s.map((it) => {
                 if (it.tempId !== tempId) return it;
@@ -130,37 +121,29 @@ export default function PurchaseCreate(props: Props) {
         setSubmitting(true);
         setFormErrors({});
 
-        const data = new FormData();
-        data.append('voucher', voucher);
-        // data.append('purchase_date', dayjs(purchaseDate).format('YYYY-MM-DD HH:mm:ss'));
-        if (supplierId) data.append('supplier_id', String(supplierId));
-        if (shopId) data.append('shop_id', String(shopId));
-        data.append('remark', remark || '');
-        data.append('other_cost_label', otherCostLabel || '');
-        // appendNumber(data, 'other_cost_amount', otherCost);
-
-        // append items as JSON string or individual fields depending on backend expectation
-        // Here we send as JSON string array
         const cleanedItems = items
-            .filter((it) => it.ingredient_id) // skip blank ingredient rows
+            .filter((it) => it.ingredient_id && it.unit_id) // skip blank ingredient rows
             .map((it) => ({
                 ingredient_id: it.ingredient_id,
                 unit_id: it.unit_id,
-                quantity: toNumber(it.quantity),
-                unit_price: toNumber(it.unit_price),
-                line_total: it.line_total,
-                remark: it.remark ?? '',
+                qty: toNumber(it.quantity),
+                price: toNumber(it.unit_price),
+                total: toNumber(it.line_total),
             }));
-
-        data.append('items', JSON.stringify(cleanedItems));
-
-        // Using Inertia router.post; route name 'purchases.store' — adapt to your routes
-        router.post(route('purchases.store'), data, {
+            
+        router.post(route('purchases.store'), {
+                purchase_date: purchaseDate,
+                supplier_id: supplierId,
+                shop_id: shopId,
+                total: itemsTotal,
+                other_cost: otherCostAmount,
+                grand_total: grandTotal,
+                items: cleanedItems
+            }, {
             preserveScroll: true,
             onSuccess: () => {
                 toast.success('Purchase saved');
-                // optionally redirect or reset form
-                // resetForm();
+                resetForm();
             },
             onError: (err) => {
                 // Inertia returns validation errors as object
@@ -169,6 +152,17 @@ export default function PurchaseCreate(props: Props) {
             onFinish: () => setSubmitting(false),
         });
     };
+
+    const resetForm = () => {
+        setPurchaseDate(new Date()) // reset to current date
+        setSupplierId(null)
+        setShopId(null)
+
+        setItems([])
+        addItem()
+        setOtherCostAmount("")
+        setRemark("")
+    }
 
     // small helper to find unit symbol
     const findUnitSymbol = (id: number | null | undefined) => units.find((u) => u.id === id)?.symbol ?? '';
@@ -211,7 +205,7 @@ export default function PurchaseCreate(props: Props) {
                                         selected={purchaseDate}
                                         captionLayout="dropdown"
                                         onSelect={(date) => {
-                                            setPurchaseDate(date)
+                                            date && setPurchaseDate(date)
                                             setOpen(false)
                                         }}
                                     />
@@ -257,7 +251,7 @@ export default function PurchaseCreate(props: Props) {
                             <h3 className="text-lg font-medium">Items</h3>
                             <div className="flex gap-2">
                                 <Button onClick={addItem}>+ Add Item</Button>
-                                <Button variant="ghost" onClick={() => { setItems((s) => s.filter((it) => it.ingredient_id)); }}>Remove empty</Button>
+                                <Button className="border bg-red-500 hover:bg-red-400" onClick={() => { setItems((s) => s.filter((it) => it.ingredient_id)); }}>Remove empty</Button>
                             </div>
                         </div>
 
@@ -281,8 +275,11 @@ export default function PurchaseCreate(props: Props) {
                                                 <Select value={it.ingredient_id ? String(it.ingredient_id) : ''} onValueChange={(v) => updateItem(it.tempId, { ingredient_id: v ? Number(v) : null })}>
                                                     <SelectTrigger className="border rounded p-2 w-full"><SelectValue placeholder="Select ingredient" /></SelectTrigger>
                                                     <SelectContent>
-                                                        {/* <SelectItem value="">Select ingredient</SelectItem>
-                            {ingredients.map((ing) => <SelectItem key={ing.id} value={String(ing.id)}>{ing.name}</SelectItem>)} */}
+                                                        {ingredients.map((ingredient) => (
+                                                            <SelectItem key={ingredient.id} value={String(ingredient.id)}>
+                                                                {ingredient.name}
+                                                            </SelectItem>
+                                                        ))}
                                                     </SelectContent>
                                                 </Select>
                                             </td>
@@ -291,14 +288,17 @@ export default function PurchaseCreate(props: Props) {
                                                 <Select value={it.unit_id ? String(it.unit_id) : ''} onValueChange={(v) => updateItem(it.tempId, { unit_id: v ? Number(v) : null })}>
                                                     <SelectTrigger className="border rounded p-2 w-full"><SelectValue placeholder="Unit" /></SelectTrigger>
                                                     <SelectContent>
-                                                        {/* <SelectItem value="">--</SelectItem>
-                            {units.map((u) => <SelectItem key={u.id} value={String(u.id)}>{u.symbol}</SelectItem>)} */}
+                                                        {units.map((unit) => (
+                                                            <SelectItem key={unit.id} value={String(unit.id)}>
+                                                                {unit.name}
+                                                            </SelectItem>
+                                                        ))}
                                                     </SelectContent>
                                                 </Select>
                                             </td>
 
                                             <td className="px-2 py-2 w-1/6">
-                                                <Input type="number" value={it.quantity} onChange={(e) => updateItem(it.tempId, { quantity: e.target.value })} className="w-full" />
+                                                <Input type="number" value={it.quantity} onChange={(e) => updateItem(it.tempId, { quantity: parseFloat(e.target.value) })} className="w-full" />
                                             </td>
 
                                             <td className="px-2 py-2 w-1/6">
@@ -306,12 +306,14 @@ export default function PurchaseCreate(props: Props) {
                                             </td>
 
                                             <td className="px-2 py-2 w-1/6">
-                                                <div className="font-medium">{formatCurrency(it.line_total)}</div>
+                                                <div className="font-medium">{formatNumber(it.line_total)}</div>
                                             </td>
 
                                             <td className="px-2 py-2">
                                                 <div className="flex gap-2">
-                                                    <Button variant="ghost" onClick={() => removeItem(it.tempId)}>Remove</Button>
+                                                    <Button className="border border-red-500 hover:bg-red-200" variant="ghost" onClick={() => removeItem(it.tempId)}>
+                                                        <CircleX className="text-red-500" />
+                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -323,18 +325,26 @@ export default function PurchaseCreate(props: Props) {
                         {/* Totals */}
                         <div className="mt-4 flex justify-end gap-6">
                             <div className="text-right">
-                                <div className="text-sm text-muted-foreground">Items Total</div>
-                                <div className="text-lg font-semibold">${formatCurrency(itemsTotal)}</div>
+                                <div className="text-sm text-muted-foreground">Total Qty</div>
+                                {/* <div className="font-medium">{formatNumber(itemsTotal)}</div> */}
+                                <Input value={formatNumber(qtyTotal)} className="w-30 text-right" disabled />
                             </div>
 
                             <div className="text-right">
-                                <label className="text-sm block mb-1">{otherCostLabel}</label>
-                                <Input value={otherCostAmount} onChange={(e) => setOtherCostAmount(e.target.value)} className="w-40" />
+                                <div className="text-sm text-muted-foreground">Total Amount</div>
+                                {/* <div className="font-medium">{formatNumber(itemsTotal)}</div> */}
+                                <Input value={formatNumber(itemsTotal)} className="w-30 text-right" disabled />
+                            </div>
+
+                            <div className="text-right">
+                                <div className="text-sm text-muted-foreground">Other Cost</div>
+                                <Input value={otherCostAmount} onChange={(e) => setOtherCostAmount(e.target.value)} className="w-30 text-right" />
                             </div>
 
                             <div className="text-right">
                                 <div className="text-sm text-muted-foreground">Grand Total</div>
-                                <div className="text-2xl font-bold">${formatCurrency(grandTotal)}</div>
+                                {/* <div className="font-medium">{formatNumber(grandTotal)}</div> */}
+                                <Input value={formatNumber(grandTotal)} className="w-30 text-right" disabled />
                             </div>
                         </div>
 
@@ -343,21 +353,32 @@ export default function PurchaseCreate(props: Props) {
                 </Card>
 
                 <Card>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <CardContent className="grid grid-cols-1 gap-4">
                         <div>
                             <label className="text-sm block mb-1">Remark</label>
                             <Textarea value={remark} onChange={(e) => setRemark(e.target.value)} />
                         </div>
 
-                        <div>
+                        {/* <div>
                             <label className="text-sm block mb-1">Other cost label</label>
                             <Input value={otherCostLabel} onChange={(e) => setOtherCostLabel(e.target.value)} />
-                        </div>
+                        </div> */}
                     </CardContent>
                 </Card>
 
                 <div className="flex justify-end gap-2">
-                    <Button onClick={handleSubmit} disabled={submitting}>{submitting ? 'Saving...' : 'Save Purchase'}</Button>
+                    {/* <Button onClick={handleSubmit} disabled={submitting}>{submitting ? 'Saving...' : 'Save Purchase'}</Button> */}
+                    <ConfirmDialog
+                        title="Save purchase?"
+                        description="Are you sure you want to save this purchase?"
+                        confirmLabel="Save"
+                        cancelLabel="Cancel"
+                        trigger={<Button className="bg-green-600 hover:bg-green-500" disabled={submitting}>{submitting ? 'Saving...' : 'Save Purchase'}</Button>}
+                        onConfirm={async () => {
+                            // call your submit handler here (can be async)
+                            await handleSubmit(); // your existing submit function
+                        }}
+                    />
                 </div>
             </div>
         </AppLayout>

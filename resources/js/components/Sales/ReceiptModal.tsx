@@ -9,11 +9,12 @@ type Props = {
   cart: SaleItem[];
   total: number;
   cash: number;
+  voucherNumber: string | null;
 };
 
 const appTitle = import.meta.env.VITE_APP_TITLE || 'POS System';
 
-export default function ReceiptModal({ show, onClose, cart, total, cash }: Props) {
+export default function ReceiptModal({ show, onClose, cart, total, cash, voucherNumber }: Props) {
   return (
     <Dialog open={show} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
@@ -23,7 +24,7 @@ export default function ReceiptModal({ show, onClose, cart, total, cash }: Props
 
         <div className="text-sm">
           <p className="text-center font-semibold mb-2">{appTitle}</p>
-          <p className="text-center mb-2">Yangon, 00001</p>
+          <p className="text-center mb-2">Voucher No: {voucherNumber}</p>
 
           <table className="w-full text-sm mb-2 border-b border-gray-400 border-dashed">
             <thead>

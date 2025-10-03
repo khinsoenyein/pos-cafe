@@ -12,9 +12,11 @@ import { ChartBarLabelCustom } from './Sales/Sales-BarChart';
 import { columns } from '@/components/Sales/columns';
 import { DataTable } from '@/components/ui/data-table';
 import { CoffeeIcon, DollarSign, Percent } from 'lucide-react';
+import { formatNumber } from '@/lib/utils';
 // import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart } from 'recharts';
 
 export type DashboardProps = {
+  totalSalesToday: number;
   totalSales: number;
   totalQty: number;
   totalProfit: number;
@@ -27,12 +29,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 export default function Dashboard() {
   const {
+    totalSalesToday,
     totalSales,
     totalQty,
     totalProfit,
     salesByShop,
     sales,
   } = usePage<DashboardProps>().props;
+
+  console.log(sales);
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -55,9 +60,9 @@ export default function Dashboard() {
             <div className="*:data-[slot=card]:shadow-xs @xl/main:grid-cols-3 @5xl/main:grid-cols-3 grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card lg:px-6">
                 <Card className="@container/card">
                     <CardHeader className="relative">
-                    <CardDescription>Total Sales</CardDescription>
+                    <CardDescription>Today Sales</CardDescription>
                     <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                        1,260,000
+                        {formatNumber(totalSalesToday * 1)}
                     </CardTitle>
                     <div className="absolute right-4 top-4">
                         <Percent className="size-10" />
@@ -68,7 +73,7 @@ export default function Dashboard() {
                     <CardHeader className="relative">
                     <CardDescription>Total Quantities</CardDescription>
                     <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                        1,234
+                        {totalQty}
                     </CardTitle>
                     <div className="absolute right-4 top-4">
                         <CoffeeIcon className="size-10" />
@@ -77,9 +82,9 @@ export default function Dashboard() {
                 </Card>
                 <Card className="@container/card">
                     <CardHeader className="relative">
-                    <CardDescription>Total Profits</CardDescription>
+                    <CardDescription>Total Sales</CardDescription>
                     <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                        482,000
+                        {formatNumber(totalSales * 1)}
                     </CardTitle>
                     <div className="absolute right-4 top-4">
                         <DollarSign className="size-10" />
@@ -108,13 +113,13 @@ export default function Dashboard() {
             </div>
           </div> */}
 
-          {/* <div className="flex flex-col gap-4 pb-2 md:gap-6 md:pb-4">
+          <div className="flex flex-col gap-4 pb-2 md:gap-6 md:pb-4">
             <div className="grid grid-cols-1 md:grid-cols-1 gap-4 px-4 lg:px-6">
               <div>
                 <DataTable columns={columns} data={sales}/>
               </div>
             </div>
-          </div> */}
+          </div>
         </div>
       </div>
 

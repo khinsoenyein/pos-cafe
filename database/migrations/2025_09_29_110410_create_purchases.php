@@ -19,7 +19,10 @@ return new class extends Migration
             $table->string('voucher_number')->unique();
             
             $table->date('purchase_date')->default(now());
+            
             $table->decimal('total', 14, 2)->default(0);
+            $table->decimal('other_cost', 14, 2)->default(0);
+            $table->decimal('grand_total', 14, 2)->default(0);
 
             $table->string('status')->default('pending'); // pending, received, cancelled
             

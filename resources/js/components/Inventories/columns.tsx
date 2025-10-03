@@ -71,6 +71,22 @@ export const columns: ColumnDef<Inventory>[] = [
         filterFn: 'includesString',
     },
     {
+        accessorKey: "reference",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Reference
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        // header: "Reference",
+        filterFn: 'includesString',
+    },
+    {
         accessorKey: "reason",
         header: ({ column }) => {
             return (

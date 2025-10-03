@@ -51,7 +51,7 @@ export const columns: ColumnDef<IngredientShop>[] = [
             )
         },
         cell: ({ row }) => {
-            const formatted = formatNumber(row.getValue("stock"))
+            const formatted = formatNumber(parseFloat(row.getValue("stock"))*1)
             return <div className="text-center">{formatted}</div>
         },
         filterFn: 'inNumberRange',

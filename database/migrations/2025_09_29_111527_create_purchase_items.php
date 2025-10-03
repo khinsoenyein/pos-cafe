@@ -20,6 +20,7 @@ return new class extends Migration
 
             $table->decimal('qty', 12, 4);
             $table->decimal('price', 12, 4);
+            $table->decimal('total', 12, 4);
 
             $table->longText('remark')->nullable();
 

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 
 import type { Shop, SaleItem } from '@/types';
+import ConfirmDialog from '../ConfirmDialog';
 
 type Props = {
   shop?: Shop;
@@ -119,6 +120,7 @@ export default function CartSidebar({ shop, items, onQtyChange, onPriceChange, o
       <Button onClick={onPay} className="mt-4" disabled={items.length === 0 || cash < total}>
         Submit
       </Button>
+      
     </div>
   );
 }

@@ -154,12 +154,22 @@ class SaleController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('sales.create')->with('success', 'Sale recorded successfully!');
+            return response()->json([
+                'success' => 'Sale created successfully',
+                'voucher_number' => $sale->voucher_number,
+            ]);
+            // return redirect()->route('sales.create')->with('success', 'Sale recorded successfully!');
         } catch (\Throwable $e) {
             DB::rollback();
             // Optionally, log error
             dd($e->getMessage());
             return back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
+    }
+
+    public function list(){
+        return Inertia::render('Sales/SalesList', [
+            'sales' => Sale::with(['shop','createdBy'])->get(),
+        ]);
     }
 }

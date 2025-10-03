@@ -57,7 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
     Route::post('/sales/store', [SaleController::class, 'store'])->name('sales.store');
-    Route::post('/sales/list', [SaleController::class, 'list'])->name('sales.list');
+    Route::get('/sales/list', [SaleController::class, 'list'])->name('sales.list');
 
     Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
     Route::post('/purchases/store', [PurchaseController::class, 'store'])->name('purchases.store');
