@@ -144,9 +144,11 @@ class SaleController extends Controller
                         'shop_id' => $recipe->shop_id,
                         'ingredient_id' => $recipe->ingredient_id,
                         'unit_id' => $ingredientUnitId,
+                        'date' => $sale->sale_date,
                         'change' => $qty * -1,
                         'reference' => $voucher_number,
-                        'reason' => 'Sales',
+                        'reason' => 'Sale',
+                        'product_id' => $item['product_id'],
                         'remark' => '',
                         'created_user' => Auth::user()->id
                     ]);
@@ -168,8 +170,8 @@ class SaleController extends Controller
     }
 
     public function list(){
-        return Inertia::render('Sales/SalesList', [
-            'sales' => Sale::with(['shop','createdBy'])->get(),
+        return Inertia::render('Sales/List', [
+            'sales' => Sale::with(['shop','items.product','createdBy'])->get(),
         ]);
     }
 }

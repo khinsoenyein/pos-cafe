@@ -14,10 +14,10 @@ class ShopSeeder extends Seeder
     public function run(): void
     {
         $shops = [
-            ['name' => 'Main Office', 'code' => 'MNO'],
-            ['name' => 'Downtown Store', 'code' => 'DTS'],
-            ['name' => 'Uptown Branch', 'code' => 'UTB'],
-            ['name' => 'Mall K', 'code' => 'MLK'],
+            ['name' => 'Main', 'code' => 'MNO'],
+            ['name' => 'Shop 1', 'code' => 'SP1'],
+            ['name' => 'Shop 2', 'code' => 'SP2'],
+            ['name' => 'Shop 3', 'code' => 'SP3'],
         ];
 
         foreach ($shops as $shop) {

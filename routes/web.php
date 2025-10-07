@@ -54,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/inventory-transaction', [InventoryController::class, 'index'])->name('inventory.index');
     Route::post('/inventory-transaction', [InventoryController::class, 'store'])->name('inventory.store');
     Route::get('/inventory-balance', [InventoryController::class, 'balance'])->name('inventory.balance');
+    Route::post('/inventory/inout', [InventoryController::class, 'inout'])->name('inventory.inout');
 
     Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
     Route::post('/sales/store', [SaleController::class, 'store'])->name('sales.store');
@@ -61,17 +62,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
     Route::post('/purchases/store', [PurchaseController::class, 'store'])->name('purchases.store');
-    Route::post('/purchases/list', [PurchaseController::class, 'list'])->name('purchases.list');
-
+    Route::get('/purchases/list', [PurchaseController::class, 'list'])->name('purchases.list');
 
     Route::get('/user/shop', [UserController::class, 'shop'])->name('user.shop');
 
-    
+
     Route::get('testing', [SaleController::class, 'testing']);
 
-    // Route::get('testing', function () {
-    //     return Inertia::render('Inventories/Page');
-    // })->name('testing');
 });
 
 require __DIR__.'/settings.php';

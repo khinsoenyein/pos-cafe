@@ -17,6 +17,7 @@ class UserShopSeeder extends Seeder
             ['user_id' => 1, 'shop_id' => '1'],
             ['user_id' => 1, 'shop_id' => '2'],
             ['user_id' => 1, 'shop_id' => '3'],
+            ['user_id' => 1, 'shop_id' => '4'],
             ['user_id' => 2, 'shop_id' => '2'],
         ];
 

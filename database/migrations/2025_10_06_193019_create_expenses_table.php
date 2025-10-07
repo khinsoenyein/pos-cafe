@@ -11,23 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventories', function (Blueprint $table) {
+        Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('shop_id')->constrained()->onDelete('cascade');
-            $table->foreignId('ingredient_id')->constrained()->onDelete('cascade');
-            $table->foreignId('unit_id')->constrained()->onDelete('cascade');
-
-            $table->dateTime('date');
-
-            $table->integer('change');
-            $table->decimal('unit_cost', 14, 4)->nullable();//purchase
-            $table->decimal('total_cost', 14, 2)->nullable();//purchase
-
-            $table->unsignedBigInteger('product_id')->nullable();
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-
-            $table->string('reference')->nullable();
-            $table->string('reason')->nullable();
+            $table->decimal('amount', 14, 2);
+            $table->string('category')->nullable(); // e.g., rent, utilities, wages
 
             $table->longText('remark')->nullable();
 
@@ -46,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inventories');
+        Schema::dropIfExists('expenses');
     }
 };

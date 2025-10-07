@@ -10,7 +10,9 @@ use App\Models\PurchaseItem;
 use App\Models\Shop;
 use App\Models\Supplier;
 use App\Models\Unit;
+use Date;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -26,7 +28,7 @@ class PurchaseController extends Controller
             'shops' => Shop::select('id', 'name')->get(),
         ]);
     }
-    
+
     public function create()
     {
         return Inertia::render('Purchases/Create', [
@@ -67,14 +69,15 @@ class PurchaseController extends Controller
                 'supplier_id' => $validated['supplier_id'],
                 'shop_id' => $shop->id,
                 'voucher_number' => $voucher_number,
-                'purchase_date' => date("Y-m-d"),
-                'total'   => $request->input('total', 0),
-                'other_code'   => $request->input('other_cost', 0),
-                'grand_total'   => $request->input('grand_total', 0),
+                'purchase_date' => Carbon::parse($validated['purchase_date'])->format('Y-m-d'),
+                'total'   => $validated['total'],
+                'other_code'   => $validated['other_cost'],
+                'grand_total'   => $validated['grand_total'],
                 'created_user' => Auth::user()->id
             ]);
 
             foreach ($validated['items'] as $item) {
+                $price = $item['price'];
                 // Attach sale items
                 PurchaseItem::create([
                     'shop_id' => $shop->id,
@@ -82,7 +85,7 @@ class PurchaseController extends Controller
                     'ingredient_id' => $item['ingredient_id'],
                     'unit_id' => $item['unit_id'],
                     'qty'        => $item['qty'],
-                    'price'      => $item['price'],
+                    'price'      => $price,
                     'total'        => $item['total'],
                     'created_user' => Auth::user()->id
                 ]);
@@ -90,14 +93,19 @@ class PurchaseController extends Controller
                 $ingredient = Ingredient::find($item['ingredient_id']);
 
                 $base_qty = Unit::convert((float) $item['qty'], (int) $item['unit_id'], (int) $ingredient->unit_id);
-                
+                $base_unit_cost = $price / $base_qty;
+                $base_total_cost = $base_unit_cost * $base_qty;
+
                 Inventory::create([
                     'shop_id' => $shop->id,
                     'ingredient_id' => $item['ingredient_id'],
                     'unit_id' => $ingredient->unit_id,
+                    'date' => $purchase->purchase_date,
                     'change' => $base_qty,
+                    'unit_cost' => $base_unit_cost,
+                    'total_cost' => $base_total_cost,
                     'reference' => $voucher_number,
-                    'reason' => 'Purchases',
+                    'reason' => 'Purchase',
                     'remark' => '',
                     'created_user' => Auth::user()->id
                 ]);
@@ -111,5 +119,11 @@ class PurchaseController extends Controller
             dd($e->getMessage());
             return back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
+    }
+
+    public function list(){
+        return Inertia::render('Purchases/List', [
+            'purchases' => Purchase::with(['supplier','shop','items.ingredient','createdBy'])->get(),
+        ]);
     }
 }

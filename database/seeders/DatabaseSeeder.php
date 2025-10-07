@@ -17,11 +17,11 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ShopSeeder::class,
             UserShopSeeder::class,
-            ProductSeeder::class,
             UnitSeeder::class,
+            ProductSeeder::class,
             IngredientSeeder::class,
-            PriceSeeder::class,
             RecipeSeeder::class,
+            PriceSeeder::class,
             SupplierSeeder::class,
         ]);
     }
