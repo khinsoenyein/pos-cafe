@@ -37,8 +37,6 @@ export default function Dashboard() {
     sales,
   } = usePage<DashboardProps>().props;
 
-  console.log(sales);
-
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Dashboard" />

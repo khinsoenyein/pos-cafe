@@ -130,7 +130,7 @@ export default function PurchaseCreate(props: Props) {
                 price: toNumber(it.unit_price),
                 total: toNumber(it.line_total),
             }));
-            
+
         router.post(route('purchases.store'), {
                 purchase_date: purchaseDate,
                 supplier_id: supplierId,
@@ -187,6 +187,35 @@ export default function PurchaseCreate(props: Props) {
                         </div> */}
 
                         <div>
+                            <Label className="text-sm block mb-1">Shop</Label>
+                            <Select value={shopId ? String(shopId) : ''} onValueChange={(v) => setShopId(v ? Number(v) : null)}>
+                                <SelectTrigger className="border rounded p-2 w-full max-w-sm dark:bg-transparent"><SelectValue placeholder="Select shop" /></SelectTrigger>
+                                <SelectContent>
+                                    {shops.map((shop) => (
+                                    <SelectItem key={shop.id} value={String(shop.id)}>
+                                        {shop.name}
+                                    </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div>
+                            <Label className="text-sm block mb-1">Supplier</Label>
+                            <Select value={supplierId ? String(supplierId) : ''} onValueChange={(v) => setSupplierId(v ? Number(v) : null)}>
+                                <SelectTrigger className="border rounded p-2 w-full max-w-sm dark:bg-transparent"><SelectValue placeholder="Select supplier" /></SelectTrigger>
+                                <SelectContent>
+                                    {suppliers.map((supplier) => (
+                                    <SelectItem key={supplier.id} value={String(supplier.id)}>
+                                        {supplier.name}
+                                    </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {formErrors.supplier_id && <p className="text-red-500 text-sm mt-1">{formErrors.supplier_id.join(', ')}</p>}
+                        </div>
+
+                        <div>
                             <Label className="text-sm block mb-1">Purchase Date</Label>
                             <Popover open={open} onOpenChange={setOpen}>
                                 <PopoverTrigger asChild>
@@ -211,35 +240,6 @@ export default function PurchaseCreate(props: Props) {
                                     />
                                 </PopoverContent>
                             </Popover>
-                        </div>
-
-                        <div>
-                            <Label className="text-sm block mb-1">Supplier</Label>
-                            <Select value={supplierId ? String(supplierId) : ''} onValueChange={(v) => setSupplierId(v ? Number(v) : null)}>
-                                <SelectTrigger className="border rounded p-2 w-full max-w-sm dark:bg-transparent"><SelectValue placeholder="Select supplier" /></SelectTrigger>
-                                <SelectContent>
-                                    {suppliers.map((supplier) => (
-                                    <SelectItem key={supplier.id} value={String(supplier.id)}>
-                                        {supplier.name}
-                                    </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {formErrors.supplier_id && <p className="text-red-500 text-sm mt-1">{formErrors.supplier_id.join(', ')}</p>}
-                        </div>
-
-                        <div>
-                            <Label className="text-sm block mb-1">Shop</Label>
-                            <Select value={shopId ? String(shopId) : ''} onValueChange={(v) => setShopId(v ? Number(v) : null)}>
-                                <SelectTrigger className="border rounded p-2 w-full max-w-sm dark:bg-transparent"><SelectValue placeholder="Select shop" /></SelectTrigger>
-                                <SelectContent>
-                                    {shops.map((shop) => (
-                                    <SelectItem key={shop.id} value={String(shop.id)}>
-                                        {shop.name}
-                                    </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
                         </div>
                     </CardContent>
                 </Card>

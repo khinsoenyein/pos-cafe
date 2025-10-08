@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('image')->nullable();
 
+            $table->foreignId('unit_id')->constrained()->onDelete('cascade');//base_unit
+
             $table->longText('remark')->nullable();
 
             $table->boolean('isdeleted')->default(false);

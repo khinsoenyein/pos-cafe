@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, CircleDollarSign, FileBox, FileChartPie, FileText, Folder, FolderClosed, LayoutGrid, LayoutList, Package, PackageOpen, ShoppingBag, ShoppingBasket, Store } from 'lucide-react';
+import { BookOpen, CircleDollarSign, FileBox, FileChartColumn, FileChartPie, FileText, Folder, FolderClosed, LayoutGrid, LayoutList, Package, PackageOpen, ShoppingBag, ShoppingBasket, Store } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -82,9 +82,17 @@ const inventoryNavItems: NavItem[] = [
 
 const reportNavItems: NavItem[] = [
     {
-        title: 'Sales',
+        title: 'Sales List',
         href: '/sales/list',
         icon: FileChartPie,
+    },{
+        title: 'Purchases List',
+        href: '/purchases/list',
+        icon: FileChartColumn,
+    },{
+        title: 'Inventory In/Out',
+        href: '/purchases/list',
+        icon: FileChartColumn,
     },
 ];
 
@@ -106,7 +114,7 @@ interface UserMenuContentProps {
 }
 
 export function AppSidebar({ user }: UserMenuContentProps) {
-    const isAdmin = Boolean(user?.admin); 
+    const isAdmin = Boolean(user?.admin);
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -122,7 +130,7 @@ export function AppSidebar({ user }: UserMenuContentProps) {
                 </SidebarMenu>
             </SidebarHeader>
 
-            
+
             {isAdmin == true ? (
                 <SidebarContent>
                     <NavMain items={mainNavItems} title='' />

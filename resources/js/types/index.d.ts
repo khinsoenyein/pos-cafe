@@ -57,6 +57,8 @@ export type Product = {
   name: string;
   sku?: string;
   description?: string;
+  unit_id: number;
+  unit: Unit;
   image?: string;
   remark?: string;
   pivot: {
@@ -217,6 +219,7 @@ export type CartItem = {
 export type SaleItem = {
   product_id: number;
   product_name?: string;
+  product: Product
   qty: number;
   price: number;
 };
@@ -228,6 +231,7 @@ export type Sale = {
   sale_date: Date;
   total: number;
   remark?: string;
+  items: SaleItem[],
   shop: {
     id: number,
     name: string
@@ -247,4 +251,37 @@ export type PurchaseLineItem = {
     unit_price: string; // string for input like "1.50"
     line_total: number;
     remark?: string;
+};
+
+export type Purchase = {
+  id: number;
+  supplier_id: number;
+  shop_id: number;
+  voucher_number: string;
+  sale_date: Date;
+  total: number;
+  remark?: string;
+  items: PurchaseItem[],
+  supplier: Supplier;
+  shop: Shop;
+  created_by: {
+    id: number,
+    name: string
+  };
+  created_at: string
+};
+
+export type PurchaseItem = {
+    purchase_id: number | null;
+    shop_id: number | null;
+    ingredient_id: number | null;
+    unit_id: number | null;
+    qty: number; // keep as string for input
+    price: string; // string for input like "1.50"
+    total: number;
+    remark?: string;
+    purchase: Purchase;
+    shop: Shop;
+    ingredient: Ingredient;
+    unit: Unit;
 };

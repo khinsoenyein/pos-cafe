@@ -25,7 +25,7 @@ class DashboardController extends Controller
             'totalSalesToday' => SaleItem::whereDate('created_at', $today)->sum(DB::raw('qty * price')),
             'totalSales' => SaleItem::sum(DB::raw('qty * price')),
             'totalQty' => SaleItem::sum(DB::raw('qty')),
-            'sales' => Sale::with(['shop','createdBy'])->get(),
+            'sales' => Sale::with(['shop','items.product','createdBy'])->orderBy('created_at', 'desc')->get(),
             'totalProfit' => '',
             'totalShops' => Shop::where('isactive', true)->count(),
             'totalProducts' => Product::where('isactive', true)->count(),

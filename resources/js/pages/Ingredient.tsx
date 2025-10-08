@@ -197,7 +197,7 @@ export default function Products() {
                             ))}
                         </SelectContent>
                     </Select>
-                    {errors.ingredient_id && <p className="text-sm text-red-600 mt-1">{errors.ingredient_id}</p>}
+                    {errors.unit_id && <p className="text-sm text-red-600 mt-1">{errors.unit_id}</p>}
                 </div>
                 <div>
                   <Textarea

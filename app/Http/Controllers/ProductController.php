@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Unit;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,9 +13,9 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::all();
         return Inertia::render('Products', [
-            'products' => $products
+            'products' => Product::with('unit')->get(),
+            'units' => Unit::all(),
         ]);
     }
 
@@ -25,6 +26,7 @@ class ProductController extends Controller
             'sku' => 'nullable|string|max:100|unique:products,sku',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'unit_id' => 'required|exists:units,id',
             'remark' => 'nullable|string',
         ]);
 
@@ -40,6 +42,7 @@ class ProductController extends Controller
             'description' => $validated['description'] ?? '',
             'image' => $validated['image'] ?? '',
             'remark' => $validated['remark'] ?? '',
+            'unit_id' => $validated['unit_id'],
             'created_user' => Auth::user()->id
         ]);
 
@@ -53,6 +56,7 @@ class ProductController extends Controller
             'sku' => 'nullable|string|max:100|unique:products,sku,' . $id,
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'unit_id' => 'required|exists:units,id',
             'remark' => 'nullable|string',
         ]);
 
@@ -74,6 +78,7 @@ class ProductController extends Controller
             'sku' => $validated['sku'],
             'description' => $validated['description'] ?? '',
             'image' => $validated['image'] ?? '',
+            'unit_id' => $validated['unit_id'],
             'remark' => $validated['remark'] ?? '',
             'modified_user' => Auth::user()->id
         ]);

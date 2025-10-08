@@ -2,12 +2,12 @@
 
 import { Button } from "@/components/ui/button"
 import { formatDate, formatNumber } from "@/lib/utils"
-import { Sale } from "@/types"
+import { Purchase, Sale } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown } from "lucide-react"
-import { ReceiptDialog } from "./ReceiptDialog"
+import { VoucherDialog } from "./VoucherDialog"
 
-export const columns: ColumnDef<Sale>[] = [
+export const columns: ColumnDef<Purchase>[] = [
     {
         accessorKey: "shop.name",
         header: ({ column }) => {
@@ -40,7 +40,7 @@ export const columns: ColumnDef<Sale>[] = [
             const voucher = row.getValue("voucher_number") as string;
 
             return (
-                <ReceiptDialog voucher={row.original}>
+                <VoucherDialog voucher={row.original}>
                 <a
                     href="#"
                     onClick={(e) => e.stopPropagation()}
@@ -48,8 +48,44 @@ export const columns: ColumnDef<Sale>[] = [
                 >
                     {voucher}
                 </a>
-                </ReceiptDialog>
+                </VoucherDialog>
             );
+        },
+        filterFn: 'includesString',
+    },
+    {
+        accessorKey: "supplier.name",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Supplier
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        filterFn: 'includesString',
+    },
+    {
+        accessorKey: "purchase_date",
+        // header: () => <div className="text-center">Done On</div>,
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Purchase Date
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        cell: ({ row }) => {
+            const formatted = row.getValue("purchase_date") ? new Date(row.getValue("purchase_date")).toISOString().split('T')[0] : ''
+
+            return <div className="text-center">{formatted}</div>
         },
         filterFn: 'includesString',
     },
@@ -68,6 +104,44 @@ export const columns: ColumnDef<Sale>[] = [
         },
         cell: ({ row }) => {
             const formatted = formatNumber(parseFloat(row.getValue("total"))*1)
+            return <div className="text-center">{formatted}</div>
+        },
+        filterFn: 'inNumberRange',
+    },
+    {
+        accessorKey: "other_cost",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    <div className="text-right">Other Cost</div>
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        cell: ({ row }) => {
+            const formatted = formatNumber(parseFloat(row.getValue("other_cost"))*1)
+            return <div className="text-center">{formatted}</div>
+        },
+        filterFn: 'inNumberRange',
+    },
+    {
+        accessorKey: "grand_total",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    <div className="text-right">Grand Total</div>
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        cell: ({ row }) => {
+            const formatted = formatNumber(parseFloat(row.getValue("grand_total"))*1)
             return <div className="text-center">{formatted}</div>
         },
         filterFn: 'inNumberRange',

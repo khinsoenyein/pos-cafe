@@ -14,7 +14,7 @@ class SupplierSeeder extends Seeder
     public function run(): void
     {
         $suppliers = [
-            ['name' => 'U Maung Maung'],
+            ['name' => 'City Mart'],
         ];
 
         foreach ($suppliers as $supplier) {
