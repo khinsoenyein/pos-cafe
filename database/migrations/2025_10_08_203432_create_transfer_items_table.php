@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sales', function (Blueprint $table) {
+        Schema::create('transfer_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('shop_id')->constrained()->onDelete('cascade');
-            $table->string('voucher_number')->unique();
-
-            $table->dateTime('sale_date');
-            $table->decimal('total', 10, 2);
+            $table->foreignId('transfer_id')->constrained('transfers')->onDelete('cascade');
+            $table->foreignId('ingredient_id')->constrained('ingredients')->onDelete('restrict');
+            $table->foreignId('unit_id')->constrained('units')->onDelete('restrict');
+            $table->integer('qty');
 
             $table->longText('remark')->nullable();
 
@@ -36,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sales');
+        Schema::dropIfExists('transfer_items');
     }
 };

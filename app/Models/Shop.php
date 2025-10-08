@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Shop extends Model
 {
-    protected $fillable = ['name', 'code', 'location', 'remark', 'created_user', 'modified_user'];
+    protected $fillable = ['name', 'code', 'location', 'remark', 'isdeleted', 'isactive', 'created_user', 'modified_user'];
 
     public function products()
     {

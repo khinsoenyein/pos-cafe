@@ -100,6 +100,7 @@ export type Shop = {
   location?: string;
   remark?: string;
   products: Product[];
+  isactive: boolean;
 };
 
 export type Supplier = {
@@ -219,7 +220,7 @@ export type CartItem = {
 export type SaleItem = {
   product_id: number;
   product_name?: string;
-  product: Product
+  product?: Product
   qty: number;
   price: number;
 };
@@ -284,4 +285,12 @@ export type PurchaseItem = {
     shop: Shop;
     ingredient: Ingredient;
     unit: Unit;
+};
+
+export type TransferLineItem = {
+    tempId: string; // local key for mapping
+    ingredient_id: number | null;
+    unit_id: number | null;
+    quantity: number; // keep as string for input
+    remark?: string;
 };

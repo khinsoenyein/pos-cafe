@@ -25,7 +25,7 @@ class PurchaseController extends Controller
             'suppliers' => Supplier::select('id', 'name')->get(),
             'ingredients' => Ingredient::select('id', 'name')->get(),
             'units' => Unit::select('id', 'name')->get(),
-            'shops' => Shop::select('id', 'name')->get(),
+            'shops' => Shop::where('isactive', true)->select('id', 'name')->get(),
         ]);
     }
 
@@ -35,7 +35,7 @@ class PurchaseController extends Controller
             'suppliers' => Supplier::select('id', 'name')->get(),
             'ingredients' => Ingredient::select('id', 'name')->get(),
             'units' => Unit::select('id', 'name')->get(),
-            'shops' => Shop::select('id', 'name')->get(),
+            'shops' => Shop::where('isactive', true)->select('id', 'name')->get(),
         ]);
     }
 
@@ -116,7 +116,7 @@ class PurchaseController extends Controller
         } catch (\Throwable $e) {
             DB::rollback();
             // Optionally, log error
-            dd($e->getMessage());
+            // dd($e->getMessage());
             return back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
     }

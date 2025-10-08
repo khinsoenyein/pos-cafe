@@ -10,6 +10,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -31,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/shops', [ShopController::class, 'index'])->name('shops.index');
     Route::post('/shops', [ShopController::class, 'store'])->name('shops.store');
     Route::put('/shops/{id}', [ShopController::class, 'update'])->name('shops.update');
+    Route::get('/shops/status', [ShopController::class, 'status'])->name('shops.status');
 
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
@@ -64,8 +66,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/purchases/store', [PurchaseController::class, 'store'])->name('purchases.store');
     Route::get('/purchases/list', [PurchaseController::class, 'list'])->name('purchases.list');
 
-    Route::get('/user/shop', [UserController::class, 'shop'])->name('user.shop');
+    Route::get('/transfer/create', [TransferController::class, 'create'])->name('transfer.create');
+    Route::post('/transfer/store', [TransferController::class, 'store'])->name('transfer.store');
+    Route::get('/transfer/list', [TransferController::class, 'list'])->name('transfer.list');
 
+    Route::get('/user/shop', [UserController::class, 'shop'])->name('user.shop');
 
     Route::get('testing', [SaleController::class, 'testing']);
 

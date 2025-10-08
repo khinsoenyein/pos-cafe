@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { BreadcrumbItem, Ingredient, PurchaseLineItem, Shop, Supplier, Unit } from '@/types';
+import { BreadcrumbItem, Ingredient, PurchaseLineItem, Shop, Supplier, TransferLineItem, Unit } from '@/types';
 import AppLayout from '@/layouts/app-layout';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -26,7 +26,6 @@ import { datetime } from 'node_modules/zod/v4/core/regexes.cjs';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 type Props = {
-    suppliers: Supplier[];
     ingredients: Ingredient[];
     units: Unit[];
     shops?: Shop[];
@@ -41,49 +40,33 @@ const toNumber = (v: string | number | null | undefined) => {
 
 // ---- Component
 export default function PurchaseCreate(props: Props) {
-    const { suppliers, ingredients, units, shops = [], errors: serverErrors = {} } = props;
+    const { ingredients, units, shops = [], errors = {} } = props;
 
     // Header fields
     const [voucher, setVoucher] = useState("");
     const [open, setOpen] = React.useState(false);
-    const [purchaseDate, setPurchaseDate] = useState<Date>(new Date());
-    const [supplierId, setSupplierId] = useState<number | null>(suppliers.length ? suppliers[0].id : null);
-    const [shopId, setShopId] = useState<number | null>((shops[0]?.id ?? null));
+    const [transferDate, setTransferDate] = useState<Date>(new Date());
+    const [fromShopId, setFromShopId] = useState<number | null>((shops[0]?.id ?? null));
+    const [toShopId, setToShopId] = useState<number | null>((shops[0]?.id ?? null));
     const [remark, setRemark] = useState('');
-    // const [otherCostLabel, setOtherCostLabel] = useState('Other Cost');
-    const [otherCostAmount, setOtherCostAmount] = useState<string>('0');
+    const [otherCostAmount, setOtherCostAmount] = useState<number>(0);
 
     // Line items
-    const [items, setItems] = useState<PurchaseLineItem[]>([
+    const [items, setItems] = useState<TransferLineItem[]>([
         {
             tempId: cryptoRandomId(),
             ingredient_id: null,
             unit_id: null,
             quantity: 0,
-            unit_price: '',
-            line_total: 0,
         },
     ]);
 
     const [submitting, setSubmitting] = useState(false);
-    const [formErrors, setFormErrors] = useState<Record<string, string[]>>(serverErrors || {});
-
-    // compute line totals whenever items change
-    useEffect(() => {
-        setItems((prev) =>
-            prev.map((it) => {
-                const q = toNumber(it.quantity);
-                const up = toNumber(it.unit_price);
-                return { ...it, line_total: Number((q * up) || 0) };
-            }),
-        );
-    }, [/* items values already trigger rerender, but we will trigger recalc on change by handlers */]);
+    // const [formErrors, setFormErrors] = useState<Record<string, string[]>>(serverErrors || {});
 
     // computed totals
     const qtyTotal = useMemo(() => items.reduce((s, it) => s + (it.quantity || 0), 0), [items]);
-    const itemsTotal = useMemo(() => items.reduce((s, it) => s + (it.line_total || 0), 0), [items]);
     const otherCost = toNumber(otherCostAmount);
-    const grandTotal = Number(itemsTotal + otherCost);
 
     // handlers
     function addItem() {
@@ -94,22 +77,19 @@ export default function PurchaseCreate(props: Props) {
                 ingredient_id: null,
                 unit_id: null,
                 quantity: 0,
-                unit_price: '',
-                line_total: 0,
             },
         ]);
     }
     function removeItem(tempId: string) {
         setItems((s) => s.filter((it) => it.tempId !== tempId));
     }
-    function updateItem(tempId: string, patch: Partial<PurchaseLineItem>) {
+
+    function updateItem(tempId: string, patch: Partial<TransferLineItem>) {
         setItems((s) =>
             s.map((it) => {
                 if (it.tempId !== tempId) return it;
                 const updated = { ...it, ...patch };
                 const q = toNumber(updated.quantity);
-                const up = toNumber(updated.unit_price);
-                updated.line_total = Number((q * up) || 0);
                 return updated;
             }),
         );
@@ -119,7 +99,7 @@ export default function PurchaseCreate(props: Props) {
     const handleSubmit = async (e?: React.FormEvent) => {
         e?.preventDefault();
         setSubmitting(true);
-        setFormErrors({});
+        // setFormErrors({});
 
         const cleanedItems = items
             .filter((it) => it.ingredient_id && it.unit_id) // skip blank ingredient rows
@@ -127,22 +107,19 @@ export default function PurchaseCreate(props: Props) {
                 ingredient_id: it.ingredient_id,
                 unit_id: it.unit_id,
                 qty: toNumber(it.quantity),
-                price: toNumber(it.unit_price),
-                total: toNumber(it.line_total),
             }));
 
-        router.post(route('purchases.store'), {
-                purchase_date: purchaseDate,
-                supplier_id: supplierId,
-                shop_id: shopId,
-                total: itemsTotal,
+        router.post(route('transfer.store'), {
+                transfer_date: transferDate,
+                from_shop_id: fromShopId,
+                to_shop_id: toShopId,
+                total_qty: qtyTotal,
                 other_cost: otherCostAmount,
-                grand_total: grandTotal,
                 items: cleanedItems
             }, {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success('Purchase saved');
+                toast.success('Transfer saved');
                 resetForm();
             },
             onError: (err) => {
@@ -154,13 +131,13 @@ export default function PurchaseCreate(props: Props) {
     };
 
     const resetForm = () => {
-        setPurchaseDate(new Date()) // reset to current date
-        setSupplierId(null)
-        setShopId(null)
+        setTransferDate(new Date()) // reset to current date
+        setFromShopId(null)
+        setToShopId(null)
 
         setItems([])
         addItem()
-        setOtherCostAmount("")
+        setOtherCostAmount(0)
         setRemark("")
     }
 
@@ -168,13 +145,13 @@ export default function PurchaseCreate(props: Props) {
     const findUnitSymbol = (id: number | null | undefined) => units.find((u) => u.id === id)?.symbol ?? '';
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Purchase', href: '/purchases/list' },
-        { title: 'Create Purchase', href: '/purchases/create' },
+        { title: 'Transfer', href: '/transfer/list' },
+        { title: 'Create Transfer', href: '/transfer/create' },
     ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Purchase" />
+            <Head title="Create Transfer" />
 
             <div className="p-4 space-y-4">
                 {/* Header card */}
@@ -187,8 +164,8 @@ export default function PurchaseCreate(props: Props) {
                         </div> */}
 
                         <div>
-                            <Label className="text-sm block mb-1">Shop</Label>
-                            <Select value={shopId ? String(shopId) : ''} onValueChange={(v) => setShopId(v ? Number(v) : null)}>
+                            <Label className="text-sm block mb-1">From Shop</Label>
+                            <Select value={fromShopId ? String(fromShopId) : ''} onValueChange={(v) => setFromShopId(v ? Number(v) : null)}>
                                 <SelectTrigger className="border rounded p-2 w-full max-w-sm dark:bg-transparent"><SelectValue placeholder="Select shop" /></SelectTrigger>
                                 <SelectContent>
                                     {shops.map((shop) => (
@@ -198,26 +175,26 @@ export default function PurchaseCreate(props: Props) {
                                     ))}
                                 </SelectContent>
                             </Select>
-                            {formErrors.shop_id && <p className="text-red-500 text-sm mt-1">{formErrors.shop_id.join(', ')}</p>}
+                            {errors.from_shop_id && <p className="text-sm text-red-600 italic mt-1">{errors.from_shop_id}</p>}
                         </div>
 
                         <div>
-                            <Label className="text-sm block mb-1">Supplier</Label>
-                            <Select value={supplierId ? String(supplierId) : ''} onValueChange={(v) => setSupplierId(v ? Number(v) : null)}>
-                                <SelectTrigger className="border rounded p-2 w-full max-w-sm dark:bg-transparent"><SelectValue placeholder="Select supplier" /></SelectTrigger>
+                            <Label className="text-sm block mb-1">To Shop</Label>
+                            <Select value={toShopId ? String(toShopId) : ''} onValueChange={(v) => setToShopId(v ? Number(v) : null)}>
+                                <SelectTrigger className="border rounded p-2 w-full max-w-sm dark:bg-transparent"><SelectValue placeholder="Select shop" /></SelectTrigger>
                                 <SelectContent>
-                                    {suppliers.map((supplier) => (
-                                    <SelectItem key={supplier.id} value={String(supplier.id)}>
-                                        {supplier.name}
+                                    {shops.map((shop) => (
+                                    <SelectItem key={shop.id} value={String(shop.id)}>
+                                        {shop.name}
                                     </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
-                            {formErrors.supplier_id && <p className="text-red-500 text-sm mt-1">{formErrors.supplier_id.join(', ')}</p>}
+                            {errors.to_shop_id && <p className="text-sm text-red-600 italic mt-1">{errors.to_shop_id}</p>}
                         </div>
 
                         <div>
-                            <Label className="text-sm block mb-1">Purchase Date</Label>
+                            <Label className="text-sm block mb-1">Transfer Date</Label>
                             <Popover open={open} onOpenChange={setOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -225,22 +202,23 @@ export default function PurchaseCreate(props: Props) {
                                         id="date"
                                         className="w-full justify-between font-normal"
                                     >
-                                        {purchaseDate ? purchaseDate.toLocaleDateString() : "Select date"}
+                                        {transferDate ? transferDate.toLocaleDateString() : "Select date"}
                                         <ChevronDownIcon />
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="overflow-hidden p-0" align="start">
                                     <Calendar
                                         mode="single"
-                                        selected={purchaseDate}
+                                        selected={transferDate}
                                         captionLayout="dropdown"
                                         onSelect={(date) => {
-                                            date && setPurchaseDate(date)
+                                            date && setTransferDate(date)
                                             setOpen(false)
                                         }}
                                     />
                                 </PopoverContent>
                             </Popover>
+                            {errors.transfer_date && <p className="text-sm text-red-600 italic mt-1">{errors.transfer_date}</p>}
                         </div>
                     </CardContent>
                 </Card>
@@ -263,8 +241,7 @@ export default function PurchaseCreate(props: Props) {
                                         <th className="px-2 py-1">Ingredient</th>
                                         <th className="px-2 py-1">Unit</th>
                                         <th className="px-2 py-1">Qty</th>
-                                        <th className="px-2 py-1">Unit Price</th>
-                                        <th className="px-2 py-1">Line Total</th>
+                                        <th className="px-2 py-1">Remark</th>
                                         <th className="px-2 py-1">Action</th>
                                     </tr>
                                 </thead>
@@ -285,7 +262,7 @@ export default function PurchaseCreate(props: Props) {
                                                 </Select>
                                             </td>
 
-                                            <td className="px-2 py-2 w-1/6">
+                                            <td className="px-2 py-2 w-1/5">
                                                 <Select value={it.unit_id ? String(it.unit_id) : ''} onValueChange={(v) => updateItem(it.tempId, { unit_id: v ? Number(v) : null })}>
                                                     <SelectTrigger className="border rounded p-2 w-full"><SelectValue placeholder="Unit" /></SelectTrigger>
                                                     <SelectContent>
@@ -298,19 +275,15 @@ export default function PurchaseCreate(props: Props) {
                                                 </Select>
                                             </td>
 
-                                            <td className="px-2 py-2 w-1/6">
+                                            <td className="px-2 py-2 w-1/5">
                                                 <Input type="number" value={it.quantity} onChange={(e) => updateItem(it.tempId, { quantity: parseFloat(e.target.value) })} className="w-full" />
                                             </td>
 
-                                            <td className="px-2 py-2 w-1/6">
-                                                <Input type="number" value={it.unit_price} onChange={(e) => updateItem(it.tempId, { unit_price: e.target.value })} className="w-full" />
+                                            <td className="px-2 py-2 w-1/5">
+                                                <Input name="remark" type="text" value={it.remark} onChange={(e) => updateItem(it.tempId, { remark: String(e) })} className="w-full" placeholder="Remark" />
                                             </td>
 
-                                            <td className="px-2 py-2 w-1/6">
-                                                <div className="font-medium">{formatNumber(it.line_total)}</div>
-                                            </td>
-
-                                            <td className="px-2 py-2">
+                                            <td className="px-2 py-2 w-1/3">
                                                 <div className="flex gap-2">
                                                     <Button className="border border-red-500 hover:bg-red-200" variant="ghost" onClick={() => removeItem(it.tempId)}>
                                                         <CircleX className="text-red-500" />
@@ -332,24 +305,12 @@ export default function PurchaseCreate(props: Props) {
                             </div>
 
                             <div className="text-right">
-                                <div className="text-sm text-muted-foreground">Total Amount</div>
-                                {/* <div className="font-medium">{formatNumber(itemsTotal)}</div> */}
-                                <Input value={formatNumber(itemsTotal)} className="w-30 text-right" disabled />
-                            </div>
-
-                            <div className="text-right">
                                 <div className="text-sm text-muted-foreground">Other Cost</div>
-                                <Input value={otherCostAmount} onChange={(e) => setOtherCostAmount(e.target.value)} className="w-30 text-right" />
-                            </div>
-
-                            <div className="text-right">
-                                <div className="text-sm text-muted-foreground">Grand Total</div>
-                                {/* <div className="font-medium">{formatNumber(grandTotal)}</div> */}
-                                <Input value={formatNumber(grandTotal)} className="w-30 text-right" disabled />
+                                <Input type="number" value={otherCostAmount} onChange={(e) => setOtherCostAmount(parseInt(e.target.value))} className="w-30 text-right" />
                             </div>
                         </div>
 
-                        {formErrors.items && <p className="text-red-500 text-sm mt-2">{(formErrors.items as string[]).join(', ')}</p>}
+                        {errors.items && <p className="text-sm text-red-600 italic mt-1">{errors.items}</p>}
                     </CardContent>
                 </Card>
 
@@ -370,11 +331,11 @@ export default function PurchaseCreate(props: Props) {
                 <div className="flex justify-end gap-2">
                     {/* <Button onClick={handleSubmit} disabled={submitting}>{submitting ? 'Saving...' : 'Save Purchase'}</Button> */}
                     <ConfirmDialog
-                        title="Save purchase?"
+                        title="Save transfer?"
                         description="Are you sure you want to save this purchase?"
                         confirmLabel="Save"
                         cancelLabel="Cancel"
-                        trigger={<Button className="bg-green-600 hover:bg-green-500" disabled={submitting}>{submitting ? 'Saving...' : 'Save Purchase'}</Button>}
+                        trigger={<Button className="bg-green-600 hover:bg-green-500" disabled={submitting}>{submitting ? 'Saving...' : 'Save Transfer'}</Button>}
                         onConfirm={async () => {
                             // call your submit handler here (can be async)
                             await handleSubmit(); // your existing submit function

@@ -19,7 +19,7 @@ class InventoryController extends Controller
         return Inertia::render('Inventories/Transaction', [
             'inventories' => $inventories,
             'ingredients' => Ingredient::select('id', 'name')->get(),
-            'shops' => Shop::select('id', 'name')->get(),
+            'shops' => Shop::where('isactive', false)->select('id', 'name')->get(),
             'ingredientShops' => IngredientShop::with('ingredient')
                 ->select('id', 'shop_id', 'ingredient_id', 'stock', 'isactive', 'isdeleted')
                 ->get(),

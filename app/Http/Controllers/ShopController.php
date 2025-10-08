@@ -58,4 +58,28 @@ class ShopController extends Controller
 
         return redirect()->route('shops.index')->with('success', 'Shop added!');
     }
+
+    public function status(Request $request)
+    {
+        $validated = $request->validate([
+            'shop_id' => 'required|exists:shops,id',
+        ]);
+
+        try {
+
+            $shop = Shop::findOrFail($validated['shop_id']);
+
+            $isActive = $shop->isactive;
+
+            $shop->update([
+                'isactive' => ($isActive == 1 ? 0 : 1),
+                'modified_user' => Auth::id(),
+            ]);
+
+            return redirect()->back()->with('success', 'Status updated.');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return back()->withErrors(['error' => 'Failed to save product setup: ' . $e->getMessage()]);
+        }
+    }
 }

@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, CircleDollarSign, FileBox, FileChartColumn, FileChartPie, FileText, Folder, FolderClosed, LayoutGrid, LayoutList, Package, PackageOpen, ShoppingBag, ShoppingBasket, Store } from 'lucide-react';
+import { BookOpen, CircleDollarSign, Combine, FileBox, FileChartColumn, FileChartPie, FileText, Folder, FolderClosed, LayoutGrid, LayoutList, Package, PackageOpen, ShoppingBag, ShoppingBasket, Store } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -69,6 +69,11 @@ const recipeNavItems: NavItem[] = [
 
 const inventoryNavItems: NavItem[] = [
     {
+        title: 'Inventory Transfer',
+        href: '/transfer/create',
+        icon: Combine,
+    },
+    {
         title: 'Inventory Transaction',
         href: '/inventory-transaction',
         icon: PackageOpen,
@@ -89,10 +94,10 @@ const reportNavItems: NavItem[] = [
         title: 'Purchases List',
         href: '/purchases/list',
         icon: FileChartColumn,
-    },{
-        title: 'Inventory In/Out',
-        href: '/purchases/list',
-        icon: FileChartColumn,
+    // },{
+    //     title: 'Inventory In/Out',
+    //     href: '/purchases/list',
+    //     icon: FileChartColumn,
     },
 ];
 

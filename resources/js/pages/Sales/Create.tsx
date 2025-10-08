@@ -146,7 +146,7 @@ export default function Sales() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="POS Sales" />
+            <Head title="Sales" />
             <div className="flex flex-col lg:flex-row gap-4 p-4">
                 {/* Left: Product list */}
                 <div className="flex-1">
