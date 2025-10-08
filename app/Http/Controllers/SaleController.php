@@ -90,7 +90,23 @@ class SaleController extends Controller
         try {
             $shop = Shop::findOrFail($validated['shop_id']);
 
-            $voucher_number = CodeGenerator::generateID(Sale::class, $validated['shop_id'], 'shop_id', 'voucher_number', 'S'.$shop->code, 4);
+            // $voucher_number = CodeGenerator::generateID(Sale::class, $validated['shop_id'], 'shop_id', 'voucher_number', 'S'.$shop->code, 4);
+
+            $sr_no = CodeGenerator::serialNumberGenerator(
+            Sale::class, 
+            'S',
+            'voucher_number', 
+            4,
+            'shop_id', 
+            '=', 
+            $validated['shop_id'],
+            'sale_date',
+            '=',
+            date("Y-m-d"));
+
+            $shop_code = $shop->code;
+            $voucher_number = $shop_code.'_'.date("ymd").'_'.$sr_no;
+
 
             // return response()->json([
             //     'voucher_number' => $voucher_number

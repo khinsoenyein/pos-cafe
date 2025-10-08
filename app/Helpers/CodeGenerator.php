@@ -26,4 +26,42 @@ class CodeGenerator
 
         return $auto_code_gen;
     }
+
+    public static function serialNumberGenerator(
+        $model, 
+        $prefixCode,
+        $column, 
+        $length = 4, 
+        $searchColumn, 
+        $operator, 
+        $searchData, 
+        $searchColumn2 = null, 
+        $operator2 = null, 
+        $searchData2 = null
+    ) {
+        // Start the query with the first condition
+        $query = $model::where($searchColumn, $operator, $searchData);
+    
+        // Apply second condition only if provided
+        if (!empty($searchColumn2) && !empty($operator2) && !empty($searchData2)) {
+            $query->where($searchColumn2, $operator2, $searchData2);
+        }
+    
+        // Get the latest record
+        $data = $query->orderBy('id', 'desc')->first();
+    
+        if (!$data) {
+            $increment_last_number = 1;
+        } else {
+            $code = substr($data->$column, strlen($data->$column) - $length, $length);
+            $actual_last_number = ((int)$code);
+            $increment_last_number = $actual_last_number + 1;
+        }
+    
+        // Format the serial number with leading zeros
+        $last_number_length = strlen($increment_last_number);
+        $zeros = str_repeat("0", $length - $last_number_length);
+    
+        return $zeros . $increment_last_number;
+    }
 }
