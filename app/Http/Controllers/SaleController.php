@@ -105,7 +105,7 @@ class SaleController extends Controller
             date("Y-m-d"));
 
             $shop_code = $shop->code;
-            $voucher_number = $shop_code.'_'.date("ymd").'_'.$sr_no;
+            $voucher_number = $shop_code.'-'.date("ymd").'-'.$sr_no;
 
 
             // return response()->json([

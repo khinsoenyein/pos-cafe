@@ -8,6 +8,7 @@ use App\Models\ProductShop;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Shop;
+use App\Models\UserShop;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -21,13 +22,15 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
+        $eligibleShops = UserShop::where('user_id', Auth::user()->id)->select('shop_id')->get()->toArray();
+
         return Inertia::render('Dashboard', [
-            'totalSalesToday' => SaleItem::whereDate('created_at', $today)->sum(DB::raw('qty * price')),
-            'totalSales' => SaleItem::sum(DB::raw('qty * price')),
-            'totalQty' => SaleItem::sum(DB::raw('qty')),
-            'sales' => Sale::with(['shop','items.product','createdBy'])->orderBy('created_at', 'desc')->get(),
+            'totalSalesToday' => SaleItem::whereIn('shop_id', $eligibleShops)->whereDate('created_at', $today)->sum(DB::raw('qty * price')),
+            'totalSales' => SaleItem::whereIn('shop_id', $eligibleShops)->sum(DB::raw('qty * price')),
+            'totalQty' => SaleItem::whereIn('shop_id', $eligibleShops)->sum(DB::raw('qty')),
+            'sales' => Sale::with(['shop','items.product','createdBy'])->whereIn('shop_id', $eligibleShops)->orderBy('created_at', 'desc')->get(),
             'totalProfit' => '',
-            'totalShops' => Shop::where('isactive', true)->count(),
+            'totalShops' => Shop::whereIn('id', $eligibleShops)->where('isactive', true)->count(),
             'totalProducts' => Product::where('isactive', true)->count(),
             // 'lowStockCount' => ProductShop::where('stock', '<', 10)->where('isdeleted', false)->count(),
             // 'salesByShop' => $this->getSalesByShop($today),
