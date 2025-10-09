@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, router } from '@inertiajs/react';
@@ -18,7 +20,6 @@ type PageProps = {
     shops: Shop[];
     payment_types: PaymentType[];
     errors: Record<string, string>;
-    flash: { success: string, voucher_number: string };
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -27,12 +28,25 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Sales() {
-    const { shops, payment_types, errors, flash } = usePage<PageProps>().props;
+    const { shops, payment_types, errors } = usePage<PageProps>().props;
 
     // console.log(shops);
 
+    // useEffect(() => {
+    //     router.reload({ only: ['shops', 'payment_types'] });
+    // }, []);
+
     useEffect(() => {
-        router.reload({ only: ['shops, payment_types'] });
+        (async () => {
+            try {
+                // reload only those props from the server
+                await router.reload({ only: ['shops', 'payment_types'] });
+                // success — nothing else to do
+            } catch (err) {
+                // handle/log the error so there's no uncaught rejection
+                console.error("router.reload failed:", err);
+            }
+        })();
     }, []);
 
     const [shopId, setShopId] = useState<number>(shops[0]?.id ?? 0);
@@ -47,8 +61,8 @@ export default function Sales() {
     const [showReceipt, setShowReceipt] = useState<boolean>(false);
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
     const [search, setSearch] = useState<string>('');
-    
-    const [sale, setSale] = useState<Sale>();
+
+    const [sale, setSale] = useState<Sale | null>(null);
 
     // Function to handle shop change and trigger Inertia visit
     const handleShopChange = (shopId: string) => {
@@ -158,6 +172,8 @@ export default function Sales() {
         setItems([]);
         setCash(0);
         setVoucherNumber(null);
+        setPaymentTypeId(payment_types[0]?.id ?? 0);
+        setSale(null);
     };
 
     return (
@@ -221,7 +237,7 @@ export default function Sales() {
 
                 {/* Receipt */}
                 {sale && (
-                    <ReceiptModal 
+                    <ReceiptModal
                         show={showReceipt}
                         onClose={handleReceiptClose}
                         // cart={items}

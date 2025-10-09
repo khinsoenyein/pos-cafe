@@ -8,6 +8,7 @@ use App\Http\Controllers\PriceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\TransferController;
@@ -73,6 +74,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/shop', [UserController::class, 'shop'])->name('user.shop');
 
     Route::get('testing', [SaleController::class, 'testing']);
+
+    Route::get('reports/daily-sales', [ReportController::class, 'dailySales'])->name('reports.daily_sales');
+    Route::get('reports/daily-sales/export', [ReportController::class, 'dailySalesExport'])->name('reports.daily_sales_export');
+
 
 });
 

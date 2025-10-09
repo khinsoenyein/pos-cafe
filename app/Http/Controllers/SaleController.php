@@ -87,7 +87,7 @@ class SaleController extends Controller
             'tax'      => 'required|numeric|min:0',
             'grand_total'      => 'required|numeric|min:1',
             'pay'      => 'required|numeric|min:1',
-            'change'      => 'required|numeric|min:1',
+            'change'      => 'required|numeric|min:0',
             'items'   => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.qty'        => 'required|integer|min:1',
