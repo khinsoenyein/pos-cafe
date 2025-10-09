@@ -14,7 +14,7 @@ class InventoryController extends Controller
 {
     public function index()
     {
-        $inventories = Inventory::with('shop', 'ingredient', 'unit', 'createdBy')->orderBy('created_at', 'desc')->get();
+        $inventories = Inventory::with('shop', 'ingredient', 'unit', 'purchase', 'sale', 'transfer', 'createdBy')->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Inventories/Transaction', [
             'inventories' => $inventories,

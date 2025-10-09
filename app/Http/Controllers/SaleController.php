@@ -6,6 +6,7 @@ use App\Helpers\CodeGenerator;
 use App\Models\IngredientProduct;
 use App\Models\IngredientShop;
 use App\Models\Inventory;
+use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
@@ -69,7 +70,8 @@ class SaleController extends Controller
         ->orderBy('name')->get();
 
         return Inertia::render('Sales/Create', [
-            'shops' => $shops
+            'shops' => $shops,
+            'payment_types' => PaymentType::orderBy('name')->select('id', 'name')->get(),
         ]);
     }
 
@@ -79,6 +81,13 @@ class SaleController extends Controller
         // Validation
         $validated = $request->validate([
             'shop_id' => 'required|exists:shops,id',
+            'payment_type_id' => 'required|exists:payment_types,id',
+            'sub_total'      => 'required|numeric|min:1',
+            'discount'      => 'required|numeric|min:0',
+            'tax'      => 'required|numeric|min:0',
+            'grand_total'      => 'required|numeric|min:1',
+            'pay'      => 'required|numeric|min:1',
+            'change'      => 'required|numeric|min:1',
             'items'   => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.qty'        => 'required|integer|min:1',
@@ -92,9 +101,9 @@ class SaleController extends Controller
 
             // $voucher_number = CodeGenerator::generateID(Sale::class, $validated['shop_id'], 'shop_id', 'voucher_number', 'S'.$shop->code, 4);
 
-            $sr_no = CodeGenerator::serialNumberGenerator(
+            $voucher_number = CodeGenerator::serialNumberGenerator(
             Sale::class,
-            'S',
+            'S'.$shop->code.'-'.date("ymd").'-',
             'voucher_number',
             4,
             'shop_id',
@@ -104,9 +113,6 @@ class SaleController extends Controller
             '=',
             date("Y-m-d"));
 
-            $shop_code = $shop->code;
-            $voucher_number = $shop_code.'-'.date("ymd").'-'.$sr_no;
-
             // return response()->json([
             //     'voucher_number' => $voucher_number
             // ]);
@@ -115,9 +121,14 @@ class SaleController extends Controller
                 'shop_id' => $shop->id,
                 'voucher_number' => $voucher_number,
                 'sale_date' => date("Y-m-d"),
-                'total'   => $request->input('total', 0),
+                'sub_total'   => $request->input('sub_total', 0),
+                'discount'   => $request->input('discount', 0),
+                'tax'   => $request->input('tax', 0),
+                'grand_total'   => $request->input('grand_total', 0),
+                'pay'   => $request->input('pay', 0),
+                'change'   => $request->input('change', 0),
+                'payment_type_id' => $request->input('payment_type_id'),
                 'created_user' => Auth::user()->id
-                //'customer' => $request->input('customer'), // add if needed
             ]);
 
             foreach ($validated['items'] as $item) {
@@ -173,20 +184,23 @@ class SaleController extends Controller
             DB::commit();
             return response()->json([
                 'success' => 'Sale created successfully',
-                'voucher_number' => $sale->voucher_number,
+                // 'voucher_number' => $sale->voucher_number,
+                'sale' => Sale::with(['shop','paymentType', 'items.product', 'createdBy'])->where('voucher_number', $sale->voucher_number)->first(),
+                // 'items' => $sale->items
             ]);
             // return redirect()->route('sales.create')->with('success', 'Sale recorded successfully!');
         } catch (\Throwable $e) {
             DB::rollback();
             // Optionally, log error
             // dd($e->getMessage());
-            return back()->withErrors(['error' => $e->getMessage()])->withInput();
+            // return back()->withErrors(['error' => $e->getMessage()])->withInput();
+            return response()->json(['message' => 'Server error', 'detail' => $e->getMessage()], 500);
         }
     }
 
     public function list(){
         return Inertia::render('Sales/List', [
-            'sales' => Sale::with(['shop','items.product','createdBy'])->get(),
+            'sales' => Sale::with(['shop','paymentType','items.product','createdBy'])->get(),
         ]);
     }
 }

@@ -138,6 +138,7 @@ export default function PurchaseCreate(props: Props) {
                 total: itemsTotal,
                 other_cost: otherCostAmount,
                 grand_total: grandTotal,
+                remark: remark,
                 items: cleanedItems
             }, {
             preserveScroll: true,

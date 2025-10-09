@@ -112,6 +112,13 @@ export type Supplier = {
   remark?: string;
 };
 
+export type PaymentType = {
+  id: number;
+  name: string;
+  description?: string;
+  remark?: string;
+};
+
 export type ShopWithProducts = Shop & {
   products: ProductWithPivot[];
 };
@@ -201,6 +208,9 @@ export type Inventory = {
     id: number,
     name: string
   };
+  purchase: Purchase,
+  sale: Sale,
+  transfer: Transfer,
   unit: Unit;
   created_by: {
     id: number,
@@ -230,10 +240,19 @@ export type Sale = {
   shop_id: number;
   voucher_number: string;
   sale_date: Date;
-  total: number;
+  sub_total: number;
+  discount: number;
+  tax: number;
+  grand_total: number;
+  pay: number;
+  change: number;
   remark?: string;
   items: SaleItem[],
   shop: {
+    id: number,
+    name: string
+  };
+  payment_type: {
     id: number,
     name: string
   };
@@ -259,8 +278,10 @@ export type Purchase = {
   supplier_id: number;
   shop_id: number;
   voucher_number: string;
-  sale_date: Date;
+  purchase_date: Date;
   total: number;
+  other_cost: number;
+  grand_total: number;
   remark?: string;
   items: PurchaseItem[],
   supplier: Supplier;
@@ -293,4 +314,35 @@ export type TransferLineItem = {
     unit_id: number | null;
     quantity: number; // keep as string for input
     remark?: string;
+};
+
+
+export type Transfer = {
+  id: number;
+  from_shop_id: number;
+  to_shop_id: number;
+  voucher_number: string;
+  transfer_date: Date;
+  total_qty: number;
+  other_cost: number;
+  remark?: string;
+  items: TransferItem[],
+  from_shop: Shop;
+  to_shop: Shop;
+  created_by: {
+    id: number,
+    name: string
+  };
+  created_at: string
+};
+
+export type TransferItem = {
+    transfer_id: number | null;
+    ingredient_id: number | null;
+    unit_id: number | null;
+    qty: number; // keep as string for input\
+    remark?: string;
+    transfer: Transfer;
+    ingredient: Ingredient;
+    unit: Unit;
 };

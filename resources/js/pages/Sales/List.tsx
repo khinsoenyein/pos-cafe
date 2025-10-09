@@ -12,15 +12,15 @@ type PageProps = {
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Report', href: '' },
-  { title: 'Sales List', href: '/sales/list' },
+  { title: 'Sales Vouchers', href: '/sales/list' },
 ];
 
 export default function Inventories() {
   const { sales, errors } = usePage<PageProps>().props;
 
-//   useEffect(() => {
-//       router.reload({ only: ['sales'] });
-//   }, []);
+  useEffect(() => {
+      router.reload({ only: ['sales'] });
+  }, []);
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -28,8 +28,8 @@ export default function Inventories() {
       <div className="flex flex-col gap-4 p-4 overflow-x-auto">
         {/* <h1 className="text-2xl font-bold">Product List</h1> */}
         <div>
-          <h1 className="text-xl font-bold">Sales List</h1>
-          <span className="text-sm text-gray-500">List of Sales</span>
+          <h1 className="text-xl font-bold">Sales Vouchers</h1>
+          <span className="text-sm text-gray-500">List of Sales Vouchers</span>
         </div>
 
         {/* Product Table */}

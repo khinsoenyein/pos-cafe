@@ -2,23 +2,32 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 
-import type { Shop, SaleItem } from '@/types';
+import type { Shop, SaleItem, PaymentType } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ConfirmDialog from '../ConfirmDialog';
+import { Input } from '../ui/input';
 
 type Props = {
   shop?: Shop;
   items: SaleItem[];
   onQtyChange: (product_id: number, delta: number) => void;
-  onPriceChange: (product_id: number, price: number) => void;
   onRemove: (product_id: number) => void;
-  total: number;
+  sub_total: number;
+  discount: number;
+  setDiscount: (value: number) => void;
+  tax: number;
+  setTax: (value: number) => void;
+  payment_types: PaymentType[],
+  paymentTypeId: number;
+  setPaymentTypeId: (value: number) => void;
   cash: number;
   setCash: (value: number) => void;
   change: number;
+  grand_total: number;
   onPay: (e: React.FormEvent) => void;
 };
 
-export default function CartSidebar({ shop, items, onQtyChange, onPriceChange, onRemove, total, cash, setCash, change, onPay }: Props) {
+export default function CartSidebar({ shop, items, onQtyChange, onRemove, sub_total, discount, setDiscount, tax, setTax, payment_types, paymentTypeId, setPaymentTypeId, cash, setCash, change, grand_total, onPay }: Props) {
   const findProduct = (id: number) => shop?.products.find(p => p.id === id);
 
   return (
@@ -60,8 +69,8 @@ export default function CartSidebar({ shop, items, onQtyChange, onPriceChange, o
                   <input
                     type="number"
                     value={item.price}
-                    onChange={(e) => onPriceChange(item.product_id, Number(e.target.value))}
-                    className="border p-1 rounded w-full text-right font-semibold"
+                    // onChange={(e) => onPriceChange(item.product_id, Number(e.target.value))}
+                    className="border p-1 rounded w-full text-right font-semibold" readOnly
                   />
 
                   <button onClick={() => onRemove(item.product_id)} className="text-red-500 hover:text-red-700">
@@ -79,15 +88,65 @@ export default function CartSidebar({ shop, items, onQtyChange, onPriceChange, o
             <span className="font-bold">{total}</span>
           </div> */}
           <div className="flex justify-between items-center">
-            <label htmlFor="total">Total:</label>
+            <label htmlFor="sub_total">Sub Total:</label>
             <input
               type="number"
-              id="total"
-              value={total}
+              id="sub_total"
+              value={sub_total}
               className="border p-1 rounded w-28 text-right font-bold"
               placeholder="0"
               readOnly
             />
+          </div>
+          <div className="flex justify-between items-center">
+            <label htmlFor="discount">Discount:</label>
+            <input
+              type="number"
+              id="discount"
+              value={discount}
+              onChange={(e) => setDiscount(Number(e.target.value))}
+              className="border p-1 rounded w-28 text-right font-bold"
+              placeholder="0"
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <label htmlFor="tax">Tax:</label>
+            <input
+              type="number"
+              id="tax"
+              value={tax}
+              onChange={(e) => setTax(Number(e.target.value))}
+              className="border p-1 rounded w-28 text-right font-bold"
+              placeholder="0"
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <label htmlFor="grand_total" className='font-bold'>Grand Total:</label>
+            <input
+              type="number"
+              id="grand_total"
+              value={grand_total >= 0 ? grand_total : ''}
+              className="border p-1 rounded w-28 text-right font-bold text-green-700"
+              placeholder="0"
+              readOnly
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <label htmlFor="payment_type">Payment Type:</label>
+            {payment_types.length > 0 && (
+                <Select onValueChange={(v) => setPaymentTypeId(v ? Number(v) : 0)} value={paymentTypeId?.toString()}>
+                    <SelectTrigger className="border rounded p-1 w-28 dark:bg-transparent">
+                        <SelectValue placeholder="Select Shop" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {payment_types.map((payment_type) => (
+                            <SelectItem key={payment_type.id} value={String(payment_type.id)}>
+                                {payment_type.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
           </div>
           <div className="flex justify-between items-center">
             <label htmlFor="cash">Cash:</label>
@@ -99,9 +158,9 @@ export default function CartSidebar({ shop, items, onQtyChange, onPriceChange, o
               className="border p-1 rounded w-28 text-right font-bold"
               placeholder="0"
             />
-          </div>          
+          </div>
           <div className="flex justify-between items-center">
-            <label htmlFor="total">Change:</label>
+            <label htmlFor="change" className='font-bold'>Change:</label>
             <input
               type="number"
               id="change"
@@ -117,7 +176,7 @@ export default function CartSidebar({ shop, items, onQtyChange, onPriceChange, o
           </div> */}
         </div>
       </div>
-      <Button onClick={onPay} className="mt-4" disabled={items.length === 0 || cash < total}>
+      <Button onClick={onPay} className="mt-4" disabled={items.length === 0 || cash < grand_total || grand_total === 0}>
         Submit
       </Button>
       

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sale extends Model
 {
-    protected $fillable = ['shop_id', 'sale_date', 'voucher_number', 'total', 'remark', 'created_user', 'modified_user'];
+    protected $fillable = ['shop_id', 'voucher_number', 'sale_date', 'payment_type_id', 'sub_total', 'discount', 'tax', 'grand_total', 'pay', 'change', 'remark', 'isdeleted', 'isactive', 'created_user', 'modified_user'];
 
     public function items()
     {
@@ -16,7 +16,12 @@ class Sale extends Model
     public function shop()
     {
         return $this->belongsTo(Shop::class, 'shop_id', 'id');
-    }    
+    }
+   
+    public function paymentType()
+    {
+        return $this->belongsTo(PaymentType::class, 'payment_type_id', 'id');
+    }   
 
     public function createdBy()
     {

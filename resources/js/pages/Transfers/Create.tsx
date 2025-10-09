@@ -115,6 +115,7 @@ export default function PurchaseCreate(props: Props) {
                 to_shop_id: toShopId,
                 total_qty: qtyTotal,
                 other_cost: otherCostAmount,
+                remark: remark,
                 items: cleanedItems
             }, {
             preserveScroll: true,

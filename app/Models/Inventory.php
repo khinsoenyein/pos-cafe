@@ -23,6 +23,21 @@ class Inventory extends Model
         return $this->belongsTo(Unit::class, 'unit_id', 'id');
     }
 
+    public function purchase()
+    {
+        return $this->belongsTo(Purchase::class, 'reference', 'voucher_number');
+    }
+
+    public function sale()
+    {
+        return $this->belongsTo(Sale::class, 'reference', 'voucher_number');
+    }
+
+    public function transfer()
+    {
+        return $this->belongsTo(Transfer::class, 'reference', 'voucher_number');
+    }
+
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_user', 'id');

@@ -62,17 +62,35 @@ class PurchaseController extends Controller
         try {
             $shop = Shop::findOrFail($validated['shop_id']);
 
-            $voucher_number = CodeGenerator::generateID(Purchase::class, $validated['shop_id'], 'shop_id', 'voucher_number', 'P'.$shop->code, 4);
+            // $voucher_number = CodeGenerator::generateID(Purchase::class, $validated['shop_id'], 'shop_id', 'voucher_number', 'P'.$shop->code, 4);
+
+            // Convert formats
+            $purchaseDate = Carbon::parse($validated['purchase_date']);
+            $purchase_date = $purchaseDate->format('Y-m-d'); // For DB save
+            $purchaseDateYmd = $purchaseDate->format('ymd'); // For voucher or code
+
+            $voucher_number = CodeGenerator::serialNumberGenerator(
+            Purchase::class,
+            'P'.$shop->code.'-'.$purchaseDateYmd.'-',
+            'voucher_number',
+            4,
+            'shop_id',
+            '=',
+            $validated['shop_id'],
+            'purchase_date',
+            '=',
+            date("Y-m-d"));
 
             // Create
             $purchase = Purchase::create([
                 'supplier_id' => $validated['supplier_id'],
                 'shop_id' => $shop->id,
                 'voucher_number' => $voucher_number,
-                'purchase_date' => Carbon::parse($validated['purchase_date'])->format('Y-m-d'),
+                'purchase_date' => $purchase_date,
                 'total'   => $validated['total'],
-                'other_code'   => $validated['other_cost'],
+                'other_cost'   => $validated['other_cost'],
                 'grand_total'   => $validated['grand_total'],
+                'remark' => $request->input('remark'),
                 'created_user' => Auth::user()->id
             ]);
 
@@ -123,7 +141,7 @@ class PurchaseController extends Controller
 
     public function list(){
         return Inertia::render('Purchases/List', [
-            'purchases' => Purchase::with(['supplier','shop','items.ingredient','createdBy'])->get(),
+            'purchases' => Purchase::with(['supplier','shop','items.ingredient','items.unit','createdBy'])->get(),
         ]);
     }
 }

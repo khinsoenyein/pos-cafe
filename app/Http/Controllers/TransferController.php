@@ -52,9 +52,11 @@ class TransferController extends Controller
             $transfer_date = $transferDate->format('Y-m-d'); // For DB save
             $transferDateYmd = $transferDate->format('ymd'); // For voucher or code
 
+            $shop = Shop::findOrFail($validated['from_shop_id']);
+
             $voucher_number = CodeGenerator::serialNumberGenerator(
             Transfer::class,
-            'TR-'.$transferDateYmd.'-',
+            'T'.$shop->code.'-'.$transferDateYmd.'-',
             'voucher_number',
             4,
             'transfer_date',
@@ -69,6 +71,7 @@ class TransferController extends Controller
                 'transfer_date' => $transfer_date,
                 'total_qty'   => $validated['total_qty'],
                 'other_cost'   => $validated['other_cost'],
+                'remark' => $request->input('remark'),
                 'created_user' => Auth::user()->id
             ]);
 

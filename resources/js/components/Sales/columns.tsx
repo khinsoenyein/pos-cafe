@@ -40,7 +40,7 @@ export const columns: ColumnDef<Sale>[] = [
             const voucher = row.getValue("voucher_number") as string;
 
             return (
-                <ReceiptDialog voucher={row.original}>
+                <ReceiptDialog sale={row.original}>
                 <a
                     href="#"
                     onClick={(e) => e.stopPropagation()}
@@ -54,20 +54,20 @@ export const columns: ColumnDef<Sale>[] = [
         filterFn: 'includesString',
     },
     {
-        accessorKey: "total",
+        accessorKey: "grand_total",
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    <div className="text-right">Total</div>
+                    <div className="text-right">Amount</div>
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )
         },
         cell: ({ row }) => {
-            const formatted = formatNumber(parseFloat(row.getValue("total"))*1)
+            const formatted = formatNumber(parseFloat(row.getValue("grand_total"))*1)
             return <div className="text-center">{formatted}</div>
         },
         filterFn: 'inNumberRange',

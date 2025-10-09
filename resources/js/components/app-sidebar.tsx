@@ -51,7 +51,17 @@ const masterNavItems: NavItem[] = [
         title: 'Price',
         href: '/price',
         icon: CircleDollarSign,
-    }
+    },
+    {
+        title: 'Ingredient',
+        href: '/ingredients',
+        icon: LayoutList,
+    },
+    {
+        title: 'Recipe',
+        href: '/recipe',
+        icon: FileText,
+    },
 ];
 
 const recipeNavItems: NavItem[] = [
@@ -68,6 +78,11 @@ const recipeNavItems: NavItem[] = [
 ];
 
 const inventoryNavItems: NavItem[] = [
+    {
+        title: 'Create Purchase',
+        href: '/purchases/create',
+        icon: ShoppingBag,
+    },
     {
         title: 'Inventory Transfer',
         href: '/transfer/create',
@@ -87,11 +102,11 @@ const inventoryNavItems: NavItem[] = [
 
 const reportNavItems: NavItem[] = [
     {
-        title: 'Sales List',
+        title: 'Sales Vouchers',
         href: '/sales/list',
         icon: FileChartPie,
     },{
-        title: 'Purchases List',
+        title: 'Purchase Vouchers',
         href: '/purchases/list',
         icon: FileChartColumn,
     // },{
@@ -140,9 +155,7 @@ export function AppSidebar({ user }: UserMenuContentProps) {
                 <SidebarContent>
                     <NavMain items={mainNavItems} title='' />
                     <NavMain items={posNavItems} title='POS' />
-                    <NavMain items={purchaseNavItems} title='Purchase' />
                     <NavMain items={masterNavItems} title='Master' />
-                    <NavMain items={recipeNavItems} title='Recipe' />
                     <NavMain items={inventoryNavItems} title='Inventory' />
                     <NavMain items={reportNavItems} title='Report' />
                 </SidebarContent>

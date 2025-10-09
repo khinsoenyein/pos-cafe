@@ -62,6 +62,6 @@ class CodeGenerator
         $last_number_length = strlen($increment_last_number);
         $zeros = str_repeat("0", $length - $last_number_length);
     
-        return $zeros . $increment_last_number;
+        return $prefixCode.$zeros . $increment_last_number;
     }
 }

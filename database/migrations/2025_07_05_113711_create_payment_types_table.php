@@ -11,20 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sales', function (Blueprint $table) {
+        Schema::create('payment_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('shop_id')->constrained()->onDelete('cascade');
-            $table->string('voucher_number')->unique();
-
-            $table->dateTime('sale_date');
-            $table->foreignId('payment_type_id')->constrained('payment_types')->onDelete('cascade');
-
-            $table->decimal('sub_total', 10, 2);
-            $table->decimal('discount', 10, 2)->default(0);
-            $table->decimal('tax', 10, 2)->default(0);
-            $table->decimal('grand_total', 10, 2);
-            $table->decimal('pay', 10, 2)->default(0);
-            $table->decimal('change', 10, 2)->default(0);
+            $table->string('name');
+            $table->string('description')->nullable();
 
             $table->longText('remark')->nullable();
 
@@ -43,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sales');
+        Schema::dropIfExists('payment_types');
     }
 };

@@ -24,3 +24,11 @@ export function formatDate(timestamp: string | Date): string {
     hour12: true,
   });
 }
+
+export function formatDateYmd(timestamp: string | Date): string {
+  return new Date(timestamp).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+}

@@ -8,7 +8,7 @@ import ProductCard from '@/components/Sales/ProductCard';
 import CartSidebar from '@/components/Sales/CartSidebar';
 import ReceiptModal from '@/components/Sales/ReceiptModal';
 
-import type { Product, Shop, SaleItem } from '@/types';
+import type { Product, Shop, SaleItem, PaymentType, Sale } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -16,6 +16,7 @@ import axios from 'axios';
 
 type PageProps = {
     shops: Shop[];
+    payment_types: PaymentType[];
     errors: Record<string, string>;
     flash: { success: string, voucher_number: string };
 };
@@ -26,23 +27,28 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Sales() {
-    const { shops, errors, flash } = usePage<PageProps>().props;
+    const { shops, payment_types, errors, flash } = usePage<PageProps>().props;
 
     // console.log(shops);
 
     useEffect(() => {
-        router.reload({ only: ['shops'] });
+        router.reload({ only: ['shops, payment_types'] });
     }, []);
 
     const [shopId, setShopId] = useState<number>(shops[0]?.id ?? 0);
     const currentShop = shops.find(s => s.id === shopId);
 
     const [items, setItems] = useState<SaleItem[]>([]);
+    const [discount, setDiscount] = useState<number>(0);
+    const [tax, setTax] = useState<number>(0);
     const [cash, setCash] = useState<number>(0);
+    const [paymentTypeId, setPaymentTypeId] = useState<number>(payment_types[0]?.id ?? 0);
     const [voucherNumber, setVoucherNumber] = useState<string | null>(null);
     const [showReceipt, setShowReceipt] = useState<boolean>(false);
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
     const [search, setSearch] = useState<string>('');
+    
+    const [sale, setSale] = useState<Sale>();
 
     // Function to handle shop change and trigger Inertia visit
     const handleShopChange = (shopId: string) => {
@@ -50,6 +56,7 @@ export default function Sales() {
         setShopId(newShopId);
         setItems([]); // Clear cart when shop changes
         setSearch(''); // Clear search term too
+        setCash(0);
         router.get(
             route('sales.create'), // Use your route name, e.g., 'sales.create'
             { shop_id: newShopId },
@@ -95,16 +102,23 @@ export default function Sales() {
         setItems(prev => prev.filter(item => item.product_id !== product_id));
     };
 
-    const subTotal = (item: SaleItem) => item.qty * item.price;
-    const grandTotal = items.reduce((sum, item) => sum + subTotal(item), 0);
-    const change = cash - grandTotal;
+    const itemTotal = (item: SaleItem) => item.qty * item.price;
+    const subTotal = items.reduce((sum, item) => sum + itemTotal(item), 0);
+    const grand_total = subTotal - discount + tax;
+    const change = cash - grand_total;
 
     const handleSubmit = async () => {
         try {
             const payload = {
                 shop_id: shopId,
+                sub_total: subTotal,
+                discount: discount,
+                tax: tax,
+                grand_total: grand_total,
+                pay: cash,
+                change: change,
+                payment_type_id: paymentTypeId,
                 items,
-                total: grandTotal,
             };
 
             const res = await axios.post("/sales/store", payload, {
@@ -113,17 +127,19 @@ export default function Sales() {
                 },
             });
 
-            const voucher = res.data?.voucher_number;
-            if (voucher) {
-                setVoucherNumber(String(voucher));
+            const sale = res.data?.sale;
+            if (sale) {
+                // setVoucherNumber(String(voucher));
                 setShowReceipt(true);
+                setSale(res.data?.sale)
+
+                toast.success("Sale created successfully");
+            } else {
+                toast.error("Unable to save");
             }
 
-            toast.success("Sale created successfully");
-
         } catch (err: any) {
-            console.error("Submit sale error", err);
-            toast.error(err?.response?.data?.message ?? "Failed to create sale");
+            toast.error(err?.response?.data?.detail ?? "Failed to create sale");
         }
     };
 
@@ -187,30 +203,36 @@ export default function Sales() {
                     shop={currentShop}
                     items={items}
                     onQtyChange={handleQtyChange}
-                    onPriceChange={handlePriceChange}
                     onRemove={handleRemoveItem}
-                    total={grandTotal}
+                    sub_total={subTotal}
+                    discount={discount}
+                    setDiscount={setDiscount}
+                    tax={tax}
+                    setTax={setTax}
+                    payment_types={payment_types}
+                    paymentTypeId={paymentTypeId}
+                    setPaymentTypeId={setPaymentTypeId}
                     cash={cash}
                     setCash={setCash}
                     change={change}
+                    grand_total={grand_total}
                     onPay={() => setShowConfirm(true)}
                 />
 
                 {/* Receipt */}
-                <ReceiptModal
-                    show={showReceipt}
-                    onClose={handleReceiptClose}
-                    cart={items}
-                    total={grandTotal}
-                    cash={cash}
-                    voucherNumber={voucherNumber}
-                />
+                {sale && (
+                    <ReceiptModal 
+                        show={showReceipt}
+                        onClose={handleReceiptClose}
+                        // cart={items}
+                        sale={sale} />
+                )}
 
                 {/* ConfirmDialog */}
                 <ConfirmDialog
                     open={showConfirm}
                     title="Complete Sale"
-                    description={`Are you sure you want to complete the sale? Total: ${grandTotal.toLocaleString()}`}
+                    description={`Are you sure you want to complete the sale? Total: ${grand_total.toLocaleString()}`}
                     confirmLabel="Save"
                     cancelLabel="Cancel"
                     onConfirm={handleConfirm}

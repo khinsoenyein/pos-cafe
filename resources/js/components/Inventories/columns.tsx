@@ -5,6 +5,7 @@ import { formatDate, formatNumber } from "@/lib/utils"
 import { Inventory } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown } from "lucide-react"
+import { VoucherDialog } from "../Purchases/VoucherDialog"
 
 export const columns: ColumnDef<Inventory>[] = [
     {
@@ -55,7 +56,7 @@ export const columns: ColumnDef<Inventory>[] = [
             return <div className="text-center">{formatted}</div>
         },
         filterFn: 'inNumberRange',
-    },{
+    }, {
         accessorKey: "unit.symbol",
         header: ({ column }) => {
             return (
