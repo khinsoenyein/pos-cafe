@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, CircleDollarSign, Combine, FileBox, FileChartColumn, FileChartPie, FileText, Folder, FolderClosed, LayoutGrid, LayoutList, Package, PackageOpen, ShoppingBag, ShoppingBasket, Store } from 'lucide-react';
+import { Banknote, BookOpen, CircleDollarSign, Combine, FileBox, FileChartColumn, FileChartLine, FileChartPie, FileText, Folder, FolderClosed, LayoutGrid, LayoutList, LucideBanknote, Package, PackageOpen, ShoppingBag, ShoppingBasket, Store } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -100,6 +100,14 @@ const inventoryNavItems: NavItem[] = [
     },
 ];
 
+const expenseNavItems: NavItem[] = [
+    {
+        title: 'Expense',
+        href: '/expenses',
+        icon: LucideBanknote,
+    },
+];
+
 const reportNavItems: NavItem[] = [
     {
         title: 'Sales Vouchers',
@@ -113,6 +121,11 @@ const reportNavItems: NavItem[] = [
     //     title: 'Inventory In/Out',
     //     href: '/purchases/list',
     //     icon: FileChartColumn,
+    },
+    {
+        title: 'Daily Sales',
+        href: '/reports/daily-sales',
+        icon: FileChartLine,
     },
 ];
 
@@ -157,6 +170,7 @@ export function AppSidebar({ user }: UserMenuContentProps) {
                     <NavMain items={posNavItems} title='POS' />
                     <NavMain items={masterNavItems} title='Master' />
                     <NavMain items={inventoryNavItems} title='Inventory' />
+                    <NavMain items={expenseNavItems} title='Expense' />
                     <NavMain items={reportNavItems} title='Report' />
                 </SidebarContent>
             ):(

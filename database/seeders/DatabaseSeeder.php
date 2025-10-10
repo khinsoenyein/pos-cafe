@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             PriceSeeder::class,
             SupplierSeeder::class,
             PaymentTypeSeeder::class,
+            ExpenseCategorySeeder::class,
         ]);
     }
 }

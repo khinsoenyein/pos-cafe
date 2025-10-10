@@ -346,3 +346,27 @@ export type TransferItem = {
     ingredient: Ingredient;
     unit: Unit;
 };
+
+export type ExpenseCategory = {
+  id: number;
+  name: string;
+  description?: string;
+  remark?: string;
+};
+
+export type Expense = {
+  id: number;
+  voucher_number: string;
+  shop_id: number;
+  expense_category_id: number;
+  payment_type_id: number;
+  expense_date: Date;
+  amount: number;
+  receipt_image?: string;
+  description?: string;
+  remark?: string;
+  image?: string;
+  shop: Shop;
+  expense_category: ExpenseCategory;
+  payment_type: PaymentType;
+};

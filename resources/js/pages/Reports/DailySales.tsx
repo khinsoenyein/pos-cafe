@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns"; // optional — or use toLocaleString
+import AppLayout from "@/layouts/app-layout";
+import { BreadcrumbItem } from "@/types";
 
 // If you don't want date-fns, use new Date(...).toLocaleDateString()
 
@@ -21,8 +23,13 @@ export default function DailySales() {
     }));
   }, [summary]);
 
+  const breadcrumbs: BreadcrumbItem[] = [
+      { title: 'Report', href: '' },
+      { title: 'Daily Sales Report', href: '/reports/daily-sales' },
+  ];
+
   return (
-    <>
+    <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Daily Sales Report" />
       <div className="p-4 space-y-4">
         <Card>
@@ -111,6 +118,6 @@ export default function DailySales() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </AppLayout>
   );
 }
