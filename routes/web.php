@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PriceController;
@@ -58,6 +59,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/inventory-transaction', [InventoryController::class, 'store'])->name('inventory.store');
     Route::get('/inventory-balance', [InventoryController::class, 'balance'])->name('inventory.balance');
     Route::post('/inventory/inout', [InventoryController::class, 'inout'])->name('inventory.inout');
+
+    Route::get('/expenses', [ExpenseController::class, 'index'])->name('expense.index');
+    Route::post('/expenses', [ExpenseController::class, 'store'])->name('expense.store');
+    Route::put('/expenses/{id}', [ExpenseController::class, 'update'])->name('expense.update');
 
     Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
     Route::post('/sales/store', [SaleController::class, 'store'])->name('sales.store');

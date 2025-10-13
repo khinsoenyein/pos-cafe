@@ -44,40 +44,124 @@ class RecipeSeeder extends Seeder
         // }
 
         $recipes = [
-            'Espresso' => [
-                'Coffee Beans' => 18, // grams
-            ],
-            'Americano' => [
-                'Coffee Beans' => 18,
-                // water omitted (not tracked as ingredient)
-            ],
-            'Cappuccino' => [
-                'Coffee Beans' => 18,
-                'Milk' => 120,       // ml (steamed milk + foam)
-                // optionally sugar ...
+            'JAK Hot' => [
+                'Coffee' => 10, // grams
+                'Flavor Milk' => 30, //ml
+                'Condensed Milk' => 15, //ml
+                'Milk' => 100, //g
             ],
             'Latte' => [
-                'Coffee Beans' => 18,
-                'Milk' => 200,
+                'Coffee' => 10, //g
+                'Milk' => 130, //g
+                'Sugar Stick' => 1, //s-stick
+            ],
+            'Latte (No Sugar)' => [
+                'Coffee' => 10, //g
+                'Milk' => 130, //g
             ],
             'Mocha' => [
-                'Coffee Beans' => 18,
-                'Milk' => 150,
-                'Chocolate Syrup' => 30, // ml
+                'Coffee' => 10, //g
+                'Chocolate' => 10, //ml
+                'Milk' => 100, //g
             ],
-            'Flat White' => [
-                'Coffee Beans' => 18,
-                'Milk' => 150,
+            'Cappuccino' => [
+                'Coffee' => 10, // g
+                'Milk' => 120, //g
+                'Sugar Stick' => 1, //s-stick
             ],
-            'Macchiato' => [
-                'Coffee Beans' => 18,
-                'Milk' => 10,
+            'Cappuccino (No Sugar)' => [
+                'Coffee' => 10, // g
+                'Milk' => 120, //g
             ],
-            'Iced Coffee' => [
-                'Coffee Beans' => 18,
-                'Ice Cubes' => 3, // pieces
-                'Milk' => 50,
+            'Milk Chocolate' => [
+                'Chocolate' => 15,
+                'Condensed Milk' => 10,
+                'Flavor Milk' => 30,
+                'Milk' => 100,
             ],
+            'Green Tea' => [
+                'Green Tea Powder' => 20,
+                'Condensed Milk' => 30,
+                'Flavor Milk' => 30,
+                'Milk' => 60,
+            ],
+            'Thai Tea' => [
+                'Green Tea Powder' => 20,
+                'Condensed Milk' => 30,
+                'Flavor Milk' => 30,
+                'Milk' => 60,
+            ],
+            'Americano' => [
+                'Coffee' => 10, // g
+            ],
+            'JAK iced' => [
+                'Coffee' => 15, // g
+                'Flavor Milk' => 30, //ml
+                'Condensed Milk' => 30, //ml
+                'Milk' => 90, //ml
+            ],
+            'Latte iced' => [
+                'Coffee' => 15, // g
+                'Condensed Milk' => 15, //ml
+                'Milk' => 150, //ml
+            ],
+            'Mocha iced' => [
+                'Coffee' => 15, // g
+                'Flavor Milk' => 30, //ml
+                'Condensed Milk' => 15, //ml
+                'Chocolate' => 15,
+                'Milk' => 150, //ml
+            ],
+            'Cappuccino iced' => [
+                'Coffee' => 15, // g
+                'Condensed Milk' => 30, //ml
+                'Milk' => 120, //g
+            ],
+            'Milk Chocolate iced' => [
+                'Chocolate' => 20,
+                'Condensed Milk' => 15, //ml
+                'Flavor Milk' => 30, //ml
+                'Milk' => 130, //ml
+            ],
+            'Lemon Presso' => [
+                'Coffee' => 15, // g
+                'Lemon Powder' => 20, // g
+                'Sugar Stick' => 1, //ml
+            ],
+            'Thai Tea iced' => [
+                'Thai Tea Powder' => 25,
+                'Condensed Milk' => 45,
+                'Flavor Milk' => 30,
+                'Milk' => 60,
+            ],
+            'Green Tea iced' => [
+                'Green Tea Powder' => 25,
+                'Condensed Milk' => 45,
+                'Flavor Milk' => 30,
+                'Milk' => 60,
+            ],
+            'Americano iced' => [
+                'Coffee' => 15,
+            ],
+            'Passion Presso' => [
+                'Passion' => 30,
+                'Coffee' => 15,
+                'Sugar Stick' => 1, //ml
+            ],
+            'Matcha' => [
+                'Matcha' => 30,
+                'Condensed Milk' => 30,
+                'Flavor Milk' => 30,
+                'Milk' => 60,
+            ],
+            'Coffee Powder 120g' => ['Coffee Powder 120g' => 1,],
+            'Coffee Bean 1Kg' => ['Coffee Bean 1Kg' => 1,],
+            'Noodle' => ['Noodle' => 1,],
+            'Bread' => ['Bread' => 1,],
+            'Water Bottle (Big)' => ['Water Bottle (Big)' => 1,],
+            'Water Bottle (Small)' => ['Water Bottle (Small)' => 1,],
+            'Cigarette' => ['Cigarette' => 1,],
+            'Cookie' => ['Cookie' => 1,],
         ];
 
         // get all shops

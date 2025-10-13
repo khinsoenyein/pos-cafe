@@ -16,39 +16,45 @@ class UserSeeder extends Seeder
     {
         $datas = [
             [
-                'name' => 'Admin', 
+                'name' => 'Admin',
                 'email' => 'admin@jaktgi.com',
-                'password' => Hash::make('Admin123!@#'), 
+                'password' => Hash::make('Admin123!@#'),
                 'admin' => true
             ],
             [
-                'name' => 'JAK-Info', 
+                'name' => 'JAK-Info',
                 'email' => 'info@jaktgi.com',
-                'password' => Hash::make('W5LqNK-K5C%h'), 
+                'password' => Hash::make('W5LqNK-K5C%h'),
                 'admin' => true
             ],
             [
-                'name' => 'Theo', 
+                'name' => 'Theo',
                 'email' => 'theo@jaktgi.com',
-                'password' => Hash::make('j9@L4[V65Cw('), 
+                'password' => Hash::make('j9@L4[V65Cw('),
                 'admin' => true
             ],
             [
-                'name' => 'JAK-Shop1', 
+                'name' => 'Win Phyu Than',
+                'email' => 'winphyuthan@jaktgi.com',
+                'password' => Hash::make('ekgI&W&K557='),
+                'admin' => true
+            ],
+            [
+                'name' => 'JAK-Shop1',
                 'email' => 'jak.shop1@jaktgi.com',
-                'password' => Hash::make('Ie6TXHpWFn!A'), 
+                'password' => Hash::make('Ie6TXHpWFn!A'),
                 'admin' => false
             ],
             [
-                'name' => 'JAK-Shop2', 
+                'name' => 'JAK-Shop2',
                 'email' => 'jak.shop2@jaktgi.com',
-                'password' => Hash::make('NW.$=F$boU.Z'), 
+                'password' => Hash::make('NW.$=F$boU.Z'),
                 'admin' => false
             ],
             [
-                'name' => 'JAK-Shop3', 
+                'name' => 'JAK-Shop3',
                 'email' => 'jak.shop3@jaktgi.com',
-                'password' => Hash::make('qn8i_f8dxip['), 
+                'password' => Hash::make('qn8i_f8dxip['),
                 'admin' => false
             ],
         ];

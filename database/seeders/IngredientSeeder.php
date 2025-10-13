@@ -14,20 +14,35 @@ class IngredientSeeder extends Seeder
      */
     public function run(): void
     {
-        $gram  = Unit::where('symbol', 'g')->first()->id;
+        $g  = Unit::where('symbol', 'g')->first()->id;
         $ml    = Unit::where('symbol', 'ml')->first()->id;
-        $piece = Unit::where('symbol', 'pc')->first()->id;
+        $pc = Unit::where('symbol', 'pc')->first()->id;
+        $bag = Unit::where('symbol', 'bag')->first()->id;
+        $stick = Unit::where('symbol', 'stick')->first()->id;
+        $s_stick = Unit::where('symbol', 's_stick')->first()->id;
 
         $ingredients = [
-            ['name' => 'Coffee Beans',   'unit_id' => $gram,  'description' => 'Used for espresso and brewed coffee'],
-            ['name' => 'Sugar',          'unit_id' => $gram,  'description' => 'Granulated sugar'],
-            ['name' => 'Milk',           'unit_id' => $ml,    'description' => 'Fresh milk'],
-            ['name' => 'Condensed Milk', 'unit_id' => $ml,    'description' => 'Sweetened condensed milk'],
-            ['name' => 'Tea Leaves',     'unit_id' => $gram,  'description' => 'Black tea or green tea'],
-            ['name' => 'Chocolate Syrup','unit_id' => $ml,    'description' => 'Used for mocha drinks'],
-            ['name' => 'Whipped Cream',  'unit_id' => $ml,    'description' => 'Topping'],
-            ['name' => 'Lemon',          'unit_id' => $piece, 'description' => 'For lemon tea'],
-            ['name' => 'Ice Cubes',      'unit_id' => $piece, 'description' => 'Approx per cube'],
+            ['name' => 'Milk',   'unit_id' => $ml,  'description' => ''],
+            ['name' => 'Condensed Milk',   'unit_id' => $ml,  'description' => ''],
+            ['name' => 'Flavor Milk',   'unit_id' => $ml,  'description' => ''],
+            ['name' => 'Chocolate',   'unit_id' => $ml,  'description' => ''],
+            ['name' => 'Coffee',   'unit_id' => $g,  'description' => ''],
+            ['name' => 'Thai Tea Powder',   'unit_id' => $g,  'description' => ''],
+            ['name' => 'Green Tea Powder',   'unit_id' => $g,  'description' => ''],
+            ['name' => 'Lemon Powder',   'unit_id' => $g,  'description' => ''],
+            ['name' => 'Passion',   'unit_id' => $ml,  'description' => ''],
+            ['name' => 'Sugar',   'unit_id' => $g,  'description' => ''],
+            ['name' => 'Sugar Stick',   'unit_id' => $s_stick,  'description' => ''],
+            ['name' => 'Matcha',   'unit_id' => $g,  'description' => ''],
+            ['name' => 'Yuzu',   'unit_id' => $ml,  'description' => ''],
+            ['name' => 'Noodle',   'unit_id' => $pc,  'description' => ''],
+            ['name' => 'Bread',   'unit_id' => $pc,  'description' => ''],
+            ['name' => 'Water Bottle (Big)',   'unit_id' => $pc,  'description' => ''],
+            ['name' => 'Water Bottle (Small)',   'unit_id' => $pc,  'description' => ''],
+            ['name' => 'Cigarette',   'unit_id' => $stick,  'description' => ''],
+            ['name' => 'Cookie',   'unit_id' => $pc,  'description' => ''],
+            ['name' => 'Coffee Bean 1Kg',   'unit_id' => $pc,  'description' => ''],
+            ['name' => 'Coffee Powder 120g',   'unit_id' => $pc,  'description' => ''],
         ];
 
         foreach ($ingredients as $ingredient) {

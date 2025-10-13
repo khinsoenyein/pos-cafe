@@ -22,7 +22,7 @@ class PriceSeeder extends Seeder
                 // $pid = rand(1,4);
                 // if ($product->id > $pid) {
                     $shop->products()->attach($product->id, [
-                        'price' => round(rand(2000, 20000), -3),
+                        'price' => $product->description,
                         'created_user' => 1
                         // 'stock' => rand(10, 50),
                     ]);
