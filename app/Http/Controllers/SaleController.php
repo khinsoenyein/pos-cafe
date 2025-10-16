@@ -42,15 +42,18 @@ class SaleController extends Controller
         $eligibleShops = UserShop::where('user_id', Auth::user()->id)->select('shop_id')->get()->toArray();
 
         $shops = Shop::with(['products' => function ($q) {
-            $q->select('products.id', 'name', 'sku')
-            ->where(['products.isdeleted' => '0', 'products.isactive' => '1'])->orderBy('name')
+            $q->select('products.id', 'name', 'sku', 'products.product_category_id')
+            ->wherePivot('isdeleted', false)
+            ->wherePivot('isactive', true)
+            ->with(['category:id,name'])
             ->withPivot('price');
         }])->where(['isdeleted' => '0', 'isactive' => '1'])
         ->whereIn('id', $eligibleShops)
         ->orderBy('name')->get();
 
         return response()->json([
-            'eligibleShops' => $eligibleShops,
+            // 'products' => Product::with('category')->get(),
+            // 'eligibleShops' => $eligibleShops,
             'shops' => $shops
         ]);
     }
@@ -60,10 +63,10 @@ class SaleController extends Controller
         $eligibleShops = UserShop::where('user_id', Auth::user()->id)->select('shop_id')->get();
 
         $shops = Shop::with(['products' => function ($q) {
-            $q->select('products.id', 'name', 'sku', 'image')
+            $q->select('products.id', 'name', 'sku', 'products.product_category_id')
             ->wherePivot('isdeleted', false)
             ->wherePivot('isactive', true)
-            ->orderBy('name')
+            ->with(['category:id,name'])
             ->withPivot('price');
         }])->where(['isdeleted' => '0', 'isactive' => '1'])
         ->whereIn('id', $eligibleShops)

@@ -15,7 +15,7 @@ class Ingredient extends Model
 
     public function inventory()
     {
-        return $this->hasMany(Inventory::class);
+        return $this->hasMany(Inventory::class, 'ingredient_id');
     }
 
     public function saleItems()

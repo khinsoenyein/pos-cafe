@@ -33,6 +33,11 @@ class Inventory extends Model
         return $this->belongsTo(Sale::class, 'reference', 'voucher_number');
     }
 
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'id');
+    }
+
     public function transfer()
     {
         return $this->belongsTo(Transfer::class, 'reference', 'voucher_number');

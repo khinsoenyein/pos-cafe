@@ -1,44 +1,39 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-
-import type { Product, Shop } from '@/types';
+import { Product } from '@/types';
 import { formatNumber } from '@/lib/utils';
 
 type Props = {
   product: Product;
+  qty?: number; // current quantity in cart (0 when not present)
   onAdd: (product: Product) => void;
 };
 
-export default function ProductCard({ product, onAdd }: Props) {
-  const initial = product?.name.charAt(0).toUpperCase() || '?';
-
+export default function ProductCard({ product, qty = 0, onAdd }: Props) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 flex flex-col justify-between h-full border dark:bg-transparent">
-      <div>
-        {/* <img
-          src={`https://via.placeholder.com/150x100.png?text=${encodeURIComponent(product.name)}`}
-          alt={product.name}
-          className="w-full h-24 object-cover rounded"
-        /> */}
-
-        <div className="flex items-center justify-center">
-          {product.image == null ? (
-            <div className="w-24 h-24 rounded bg-gray-200 flex items-center justify-center font-bold text-gray-700 mb-2">
-              {initial}
-            </div>
-          ) : (
-            <img
-              src={`/storage/${product.image}`}
-              alt={product.name}
-              className="h-24 w-24 rounded border mb-2"
-            />
-          )}
+    <div
+      className="w-full bg-white rounded-lg shadow-[0_0_3px_#7f7f7f8a] p-3 flex items-center justify-between gap-3"
+      // make row height consistent on mobile
+      role="button"
+    >
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-sm font-medium leading-5 truncate">{product.name}</div>
+            <div className="text-xs text-gray-500 mt-1">{formatNumber(product.pivot.price*1)}</div>
+          </div>
         </div>
-
-        <h3 className="mt-2 font-semibold text-sm truncate">{product.name}</h3>
-        <p className="text-sm text-gray-500">{formatNumber(product.pivot.price * 1)}</p>
       </div>
-      <Button onClick={() => onAdd(product)} className="mt-3">+ Add</Button>
+
+      <div className="flex-shrink-0">
+        <Button
+          onClick={() => onAdd(product)}
+          className="px-3 py-1"
+          // small visual difference when qty > 0
+        >
+          {qty > 0 ? String(qty) : '+'}
+        </Button>
+      </div>
     </div>
   );
 }

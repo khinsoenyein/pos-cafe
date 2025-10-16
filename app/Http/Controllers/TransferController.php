@@ -97,7 +97,7 @@ class TransferController extends Controller
                     'date' => $transfer->transfer_date,
                     'change' => $base_qty * -1,
                     'reference' => $voucher_number,
-                    'reason' => 'Transfer',
+                    'reason' => 'Transfer In',
                     'remark' => '',
                     'created_user' => Auth::user()->id
                 ]);
@@ -110,7 +110,7 @@ class TransferController extends Controller
                     'date' => $transfer->transfer_date,
                     'change' => $base_qty,
                     'reference' => $voucher_number,
-                    'reason' => 'Transfer',
+                    'reason' => 'Transfer Out',
                     'remark' => '',
                     'created_user' => Auth::user()->id
                 ]);

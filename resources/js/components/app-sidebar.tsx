@@ -127,6 +127,11 @@ const reportNavItems: NavItem[] = [
         href: '/reports/daily-sales',
         icon: FileChartLine,
     },
+    {
+        title: 'Daily Inventory',
+        href: '/reports/daily-inventory',
+        icon: FileChartLine,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

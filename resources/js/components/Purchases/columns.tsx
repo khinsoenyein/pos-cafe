@@ -44,7 +44,7 @@ export const columns: ColumnDef<Purchase>[] = [
                 <a
                     href="#"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-black hover:underline"
+                    className="text-primary hover:underline"
                 >
                     {voucher}
                 </a>

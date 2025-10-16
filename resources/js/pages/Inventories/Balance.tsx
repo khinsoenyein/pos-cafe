@@ -26,7 +26,6 @@ export default function Inventories() {
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Balance" />
       <div className="flex flex-col gap-4 p-4 overflow-x-auto">
-        {/* <h1 className="text-2xl font-bold">Product List</h1> */}
         <div>
           <h1 className="text-xl font-bold">Inventory Balance</h1>
           <span className="text-sm text-gray-500">Inventory Balance Information</span>

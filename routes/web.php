@@ -82,7 +82,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('reports/daily-sales', [ReportController::class, 'dailySales'])->name('reports.daily_sales');
     Route::get('reports/daily-sales/export', [ReportController::class, 'dailySalesExport'])->name('reports.daily_sales_export');
-
+    Route::get('reports/daily-inventory', [ReportController::class, 'dailyInventory'])->name('reports.daily_inventory');
 
 });
 

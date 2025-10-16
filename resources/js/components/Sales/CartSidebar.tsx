@@ -6,6 +6,7 @@ import type { Shop, SaleItem, PaymentType } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ConfirmDialog from '../ConfirmDialog';
 import { Input } from '../ui/input';
+import { formatNumber } from '@/lib/utils';
 
 type Props = {
   shop?: Shop;
@@ -68,7 +69,7 @@ export default function CartSidebar({ shop, items, onQtyChange, onRemove, sub_to
 
                   <input
                     type="number"
-                    value={item.price}
+                    value={formatNumber(item.price)}
                     // onChange={(e) => onPriceChange(item.product_id, Number(e.target.value))}
                     className="border p-1 rounded w-full text-right font-semibold" readOnly
                   />

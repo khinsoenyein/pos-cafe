@@ -64,6 +64,14 @@ export type Product = {
   pivot: {
     price: number;
   };
+  category: ProductCategory;
+};
+
+export type ProductCategory = {
+  id: number;
+  name: string;
+  description?: string;
+  remark?: string;
 };
 
 export type ProductShop = {

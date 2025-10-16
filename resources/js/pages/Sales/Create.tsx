@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import axios from 'axios';
+import { any } from 'zod';
 
 type PageProps = {
     shops: Shop[];
@@ -112,6 +113,43 @@ export default function Sales() {
         );
     };
 
+    // --- helper: prepare filtered & grouped products before JSX render ---
+    const allProducts = currentShop?.products ?? [];
+
+    // normalize search
+    const q = (search ?? '').toString().trim().toLowerCase();
+
+    // filter safely
+    const filteredProducts = q.length
+        ? allProducts.filter((p) => {
+            const name = (p.name ?? '').toString().toLowerCase();
+            const sku = (p.sku ?? '').toString().toLowerCase();
+            return name.includes(q) || sku.includes(q);
+        })
+        : allProducts;
+
+    // build qty lookup
+    const qtyMap = items.reduce<Record<number, number>>((acc, it) => {
+        acc[it.product_id] = it.qty;
+        return acc;
+    }, {});
+
+    // group filtered products by category name
+    const productsByCategory: Record<string, typeof filteredProducts> = {};
+    (filteredProducts ?? []).forEach((p) => {
+        const cat = (p.category?.name ?? 'Uncategorized');
+        if (!productsByCategory[cat]) productsByCategory[cat] = [];
+        productsByCategory[cat].push(p);
+    });
+
+    // group products by category name
+    // const productsByCategory: Record<string, Product[]> = {};
+    // (currentShop?.products ?? []).forEach((p) => {
+    //     const cat = p.category?.name ?? 'Uncategorized';
+    //     if (!productsByCategory[cat]) productsByCategory[cat] = [];
+    //     productsByCategory[cat].push(p);
+    // });
+
     const handleRemoveItem = (product_id: number) => {
         setItems(prev => prev.filter(item => item.product_id !== product_id));
     };
@@ -163,10 +201,6 @@ export default function Sales() {
         handleSubmit();
     };
 
-    const filteredProducts = currentShop?.products.filter(p =>
-        p.name.toLowerCase().includes(search.toLowerCase())
-    ) || [];
-
     const handleReceiptClose = () => {
         setShowReceipt(false);
         setItems([]);
@@ -207,9 +241,30 @@ export default function Sales() {
                             className="border rounded p-2"
                         />
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {/* <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-3">
                         {filteredProducts.map((product) => (
-                            <ProductCard key={product.id} product={product} onAdd={handleAddProduct} />
+                            <ProductCard key={product.id} product={product} qty={qtyMap[product.id] ?? 0} onAdd={handleAddProduct} />
+                        ))}
+                    </div> */}
+
+                    <div className="space-y-4">
+                        {Object.entries(productsByCategory).map(([categoryName, products]) => (
+                            <div key={categoryName}>
+                                {/* <div className="text-sm font-semibold mb-2">{categoryName}</div> */}
+                                <h3 className="font-bold mb-2 text-primary">{categoryName}</h3>
+
+                                {/* responsive grid: 1 col on phone, 2 on small, 3 on md, etc. */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
+                                    {products.map((product) => (
+                                        <ProductCard
+                                            key={product.id}
+                                            product={product}
+                                            qty={qtyMap[product.id] ?? 0}
+                                            onAdd={handleAddProduct}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
                         ))}
                     </div>
                 </div>

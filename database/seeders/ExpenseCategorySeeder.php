@@ -14,38 +14,14 @@ class ExpenseCategorySeeder extends Seeder
     public function run(): void
     {
         $datas = [
-            [
-                'name' => 'Rent',
-                'description' => 'Monthly office or shop rent expenses',
-            ],
-            [
-                'name' => 'Utilities',
-                'description' => 'Electricity, water, and internet bills',
-            ],
-            [
-                'name' => 'Supplies',
-                'description' => 'Office and shop supplies expenses',
-            ],
-            [
-                'name' => 'Transportation',
-                'description' => 'Travel and delivery related costs',
-            ],
-            [
-                'name' => 'Maintenance',
-                'description' => 'Equipment or property maintenance',
-            ],
-            [
-                'name' => 'Salaries',
-                'description' => 'Staff salary and wages',
-            ],
-            [
-                'name' => 'Marketing',
-                'description' => 'Promotional or advertising expenses',
-            ],
-            [
-                'name' => 'Miscellaneous',
-                'description' => 'Other general expenses not categorized',
-            ],
+            ['name' => 'ရေသန့်', 'expense_type' => 'cost'],
+            ['name' => 'ရေခဲ', 'expense_type' => 'cost',],
+            ['name' => 'ကားဆီ / မီးစက်ဆီ', 'expense_type' => 'cost',],
+            ['name' => 'အထွေထွေစရိတ်', 'expense_type' => 'expense',],
+            ['name' => 'ဝန်ထမ်းလစာ', 'expense_type' => 'expense',],
+            ['name' => 'Commission', 'expense_type' => 'expense',],
+            ['name' => 'Marketing', 'expense_type' => 'expense',],
+            ['name' => 'Rent', 'expense_type' => 'expense',],
         ];
 
         foreach ($datas as $data) {

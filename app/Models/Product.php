@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = ['name', 'sku', 'description', 'image', 'unit_id', 'remark', 'created_user', 'modified_user'];
+    protected $fillable = ['name', 'sku', 'description', 'image', 'product_category_id', 'unit_id', 'remark', 'created_user', 'modified_user'];
 
     public function inventory()
     {
@@ -29,6 +29,12 @@ class Product extends Model
         return $this->belongsToMany(Product::class, 'ingredient_product', 'product_id', 'ingredient_id')
             ->withPivot('quantity', 'shop_id')
             ->withTimestamps();
+    }
+    
+
+    public function category()
+    {
+        return $this->belongsTo(ProductCategory::class, 'product_category_id', 'id');
     }
 
     public function unit()

@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
+
+            $table->enum('expense_type', ['cost', 'expense'])->default('expense');
             
             $table->longText('remark')->nullable();
 
@@ -34,12 +36,14 @@ return new class extends Migration
             $table->date('expense_date');
             
             $table->foreignId('shop_id')->constrained()->onDelete('cascade');
-            $table->foreignId('expense_category_id')->constrained()->onDelete('restrict');
             $table->foreignId('payment_type_id')->constrained('payment_types')->onDelete('cascade');
+            $table->foreignId('expense_category_id')->constrained()->onDelete('restrict');
 
             $table->decimal('amount', 14, 2);
             $table->string('description')->nullable();
             $table->string('receipt_image')->nullable();
+            
+            $table->string('reference')->nullable();
 
             $table->longText('remark')->nullable();
 
